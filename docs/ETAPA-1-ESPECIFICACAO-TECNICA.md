@@ -80,10 +80,11 @@ Autorização é baseada no registro de perfil no banco (não em `user_metadata`
 |---|---|
 | 7 tabelas esperadas criadas | PASSOU |
 | RLS habilitado nas 7 tabelas | PASSOU |
+| Security Advisor | PASSOU — nenhum alerta retornado |
 | Papel `authenticated` sem DELETE em `profiles` | PASSOU |
 | Papel `anon` sem SELECT em mensagens | PASSOU |
 | Papel `anon` sem executar checagem de TI | PASSOU |
-| Triggers de bloqueio em perfis, mensagens e auditoria; log de auditoria sem UPDATE/DELETE | PASSOU |
+| Triggers de bloqueio em perfis e mensagens; auditoria sem UPDATE/DELETE | PASSOU |
 | Tentativa sintética de DELETE via trigger | PASSOU — SQLSTATE 55000 |
 | Tentativa sintética de anexar XLS e XLSX | PASSOU — rejeitados por CHECK |
 | Tentativa sintética de anexar MP3 e WAV/áudio | PASSOU — rejeitados por CHECK |
@@ -91,8 +92,10 @@ Autorização é baseada no registro de perfil no banco (não em `user_metadata`
 | Tentativa sintética de anexar CSV, DOC e DOCX | PASSOU — rejeitados por CHECK |
 | JPEG com MIME PNG (arquivo renomeado/incompatível) | PASSOU — rejeitado por CHECK |
 | PDF e JPEG com metadados válidos | PASSOU |
+| Índices cobrindo as FKs apontadas pelo primeiro Performance Advisor | PASSOU — sem alerta de FK não indexada |
+| Performance Advisor: índices não utilizados | INFORMATIVO — esperado antes de haver carga real de consultas |
 
-Os testes de mídia foram feitos em tabela temporária criada com as mesmas constraints da tabela real, sem inserir dados pessoais. O teste de DELETE foi feito em tabela temporária usando a mesma função trigger; a existência dos três triggers reais foi verificada separadamente. Não foi executado teste com usuários reais.
+Os testes de mídia foram feitos em tabela temporária criada com as mesmas constraints da tabela real, sem inserir dados pessoais. Os testes de UPDATE/DELETE da auditoria foram feitos em tabela temporária usando a mesma função trigger; os triggers reais e privilégios foram verificados por catálogo. Não foi executado teste com usuários reais. O Performance Advisor ainda lista índices como não utilizados porque o banco está vazio e não há carga de consultas; não identificou FKs sem índice após a correção.
 
 ## 8. Pendências deliberadas para etapas futuras
 
