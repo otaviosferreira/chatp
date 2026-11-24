@@ -35,7 +35,7 @@ Nenhuma chave `service_role`/secret pode ser enviada ao navegador ou armazenada 
 | `audit_logs` | Trilha de ações administrativas/consultas; append-only com bloqueio de DELETE. |
 | `access_requests` | Solicitações formais, justificativa, número de referência, notificação, responsável pela abertura e status. |
 
-Índices foram adicionados para diretório, participantes, histórico de mensagens, anexos, auditoria e fila de solicitações.
+Índices foram adicionados para diretório, participantes, histórico de mensagens, anexos, auditoria e fila de solicitações. Índices adicionais cobrem as FKs sinalizadas na primeira leitura do Performance Advisor.
 
 ## 4. Matriz de permissões
 
@@ -83,11 +83,12 @@ Autorização é baseada no registro de perfil no banco (não em `user_metadata`
 | Papel `authenticated` sem DELETE em `profiles` | PASSOU |
 | Papel `anon` sem SELECT em mensagens | PASSOU |
 | Papel `anon` sem executar checagem de TI | PASSOU |
-| Triggers de bloqueio em perfis, mensagens e auditoria | PASSOU |
+| Triggers de bloqueio em perfis, mensagens e auditoria; log de auditoria sem UPDATE/DELETE | PASSOU |
 | Tentativa sintética de DELETE via trigger | PASSOU — SQLSTATE 55000 |
-| Tentativa sintética de anexar XLSX | PASSOU — rejeitada por CHECK |
-| Tentativa sintética de anexar MP3/áudio | PASSOU — rejeitada por CHECK |
+| Tentativa sintética de anexar XLS e XLSX | PASSOU — rejeitados por CHECK |
+| Tentativa sintética de anexar MP3 e WAV/áudio | PASSOU — rejeitados por CHECK |
 | Tentativa sintética de anexar PNG | PASSOU — rejeitada por CHECK |
+| Tentativa sintética de anexar CSV, DOC e DOCX | PASSOU — rejeitados por CHECK |
 | JPEG com MIME PNG (arquivo renomeado/incompatível) | PASSOU — rejeitado por CHECK |
 | PDF e JPEG com metadados válidos | PASSOU |
 
@@ -103,6 +104,7 @@ Os testes de mídia foram feitos em tabela temporária criada com as mesmas cons
 - Etapa 7: design system oficial (aguarda arquivos/cores/logotipo fornecidos pela Calunga).
 - Etapa 8: testes E2E e deploy.
 - Confirmar com TI/jurídico a região de dados, política de retenção, criptografia/backup, acesso formal e limites legais de notificação.
+- Confirmar a exposição explícita das tabelas necessárias na Data API do Supabase; desde 2026-10-30 tabelas novas em `public` não são automaticamente expostas por padrão.
 
 ## 9. Critério de encerramento
 
