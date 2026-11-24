@@ -94,7 +94,7 @@ Os controles estruturais do banco e a configuração visual de signup foram veri
 - Criação do perfil associado ao UUID do Auth; compensação com remoção do usuário Auth se a criação do perfil falhar.
 - Callback de convite via `/auth/confirm` e tela de primeiro acesso para definir senha (mínimo de 12 caracteres).
 - Edição de nome/departamento, atribuição de papel `employee/it_admin` e ativação/desativação.
-- Proteção contra auto-desativação/rebaixamento e contra desativar/rebaixar o último administrador ativo.
+- Proteção contra auto-desativação/rebaixamento e contra desativar/rebaixar o último administrador ativo, reforçada por trigger PostgreSQL com advisory lock para evitar corrida entre operações concorrentes.
 - Registro server-side das operações administrativas em `audit_logs`.
 - Nenhuma operação de exclusão física de perfil.
 
