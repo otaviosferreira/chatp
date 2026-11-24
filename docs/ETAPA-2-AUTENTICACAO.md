@@ -60,3 +60,18 @@ A criação de contas continua reservada ao fluxo administrativo da TI, previsto
 5. Executar typecheck, lint e build.
 
 A Etapa 3 não deve começar até a aprovação explícita desta entrega.
+
+## Registro de validações realizadas em 24/11/2026
+
+- Projeto Supabase confirmado pelo conector: `xspfkbqfjgklqplkevfx`, nome `1272616632@ulife.com.br's Project`, status `ACTIVE_HEALTHY`, região `us-east-2`. O nome corresponde ao projeto exibido na captura do painel.
+- O usuário mostrou a tela **Authentication → Sign In / Providers** com **Allow new users to sign up** desligado e informou que poderia continuar. A gravação foi indicada pelo usuário; não há leitura programática independente da configuração global do Auth nesta integração.
+- Banco: 7/7 tabelas públicas com RLS habilitado; 11 políticas RLS; zero concessões de tabela para `anon`.
+- Banco: zero usuários em `auth.users` e zero perfis em `public.profiles`; nenhum dado de funcionário foi criado.
+- Privilégios: `authenticated` não possui `DELETE` nem `UPDATE` em `public.profiles`.
+- Supabase Security Advisor: sem alertas retornados nesta consulta.
+- Supabase Performance Advisor: apenas alertas informativos de índices ainda não utilizados, esperado em banco sem carga de uso.
+- GitHub: PR em rascunho #71 aberto para revisão; não mesclado. O commit não apresentou status/checks do GitHub Actions nesta consulta, portanto CI não está comprovado como executado.
+
+### Resultado
+
+Os controles de banco e a configuração visual de signup foram verificados estruturalmente. O teste ponta a ponta de login, sessão, renovação e logout permanece bloqueado pela ausência deliberada de uma conta de teste autorizada. Typecheck, lint e build também permanecem pendentes até o GitHub Actions executar com sucesso ou o projeto ser executado em ambiente Node compatível.
