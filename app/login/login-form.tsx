@@ -20,7 +20,7 @@ export function LoginForm() {
       </div>
       {state.error ? <p className="notice" role="alert">{state.error}</p> : null}
       <button className="primary-button" type="submit" disabled={pending}>
-        {pending ? "Validando acesso..." : "Entrar no ChatApp"}
+        {pending ? "Validando acesso..." : "Entrar no ChatP"}
       </button>
       <p className="security-note">
         O acesso é exclusivo para funcionários previamente cadastrados pela equipe de TI.
