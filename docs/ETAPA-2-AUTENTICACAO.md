@@ -81,3 +81,43 @@ A Etapa 3 não deve começar até a aprovação explícita desta entrega.
 ### Resultado
 
 Os controles estruturais do banco e a configuração visual de signup foram verificados. A conta de teste autorizada está criada e ativa. A incompatibilidade de dependências foi corrigida e o CI passou em instalação, TypeScript, ESLint e build. A implantação Preview ainda precisa atingir `READY`. O teste funcional de login, sessão, renovação e logout precisa ser realizado no navegador com a senha definida pelo usuário. O alerta `auth_leaked_password_protection` permanece pendente no plano Free e não deve ser declarado resolvido.
+
+
+## Etapa 3 — Administração de funcionários e provisionamento
+
+**Branch:** `feat/etapa-3-administracao`
+
+### Entregas implementadas
+- Área administrativa protegida por autenticação e validação server-side do papel `it_admin`.
+- Convite de funcionário por e-mail com Supabase Auth Admin API; não há senha compartilhada nem auto-cadastro.
+- Validação de domínio corporativo (`CORPORATE_EMAIL_DOMAIN`, padrão `ulife.com.br`).
+- Criação do perfil associado ao UUID do Auth; compensação com remoção do usuário Auth se a criação do perfil falhar.
+- Callback de convite via `/auth/confirm` e tela de primeiro acesso para definir senha (mínimo de 12 caracteres).
+- Edição de nome/departamento, atribuição de papel `employee/it_admin` e ativação/desativação.
+- Proteção contra auto-desativação/rebaixamento e contra desativar/rebaixar o último administrador ativo.
+- Registro server-side das operações administrativas em `audit_logs`.
+- Nenhuma operação de exclusão física de perfil.
+
+### Configuração obrigatória para habilitar operações administrativas
+Adicionar na Vercel, em **Preview** e **Production**, a variável secreta `SUPABASE_SECRET_KEY` com a secret key do projeto Supabase. Ela deve ficar exclusivamente no servidor (nunca usar prefixo `NEXT_PUBLIC_`, não inserir no GitHub e não compartilhar no chat). A aplicação também usa:
+- `NEXT_PUBLIC_SITE_URL`: URL pública do ChatApp usada como destino do convite.
+- `CORPORATE_EMAIL_DOMAIN`: domínio corporativo sem @ (padrão `ulife.com.br`).
+
+A secret key concede acesso privilegiado e ignora RLS; a utilização foi isolada em `lib/supabase/admin.ts`, que importa `server-only`. Referência oficial: https://supabase.com/docs/guides/getting-started/migrating-to-new-api-keys
+
+### Bootstrap do primeiro administrador
+A primeira conta `it_admin` deve ser promovida por operador autorizado no SQL Editor do Supabase, após validar a identidade e o vínculo funcional. Não existe endpoint público para promover a si mesmo. Executar somente após aprovação interna:
+```sql
+update public.profiles
+set role = 'it_admin', updated_at = now()
+where id = '<UUID_VALIDADO>'
+  and status = 'active';
+```
+Não usar e-mail/UUID fornecido por formulário como autorização. A promoção inicial deve ser feita por operador com acesso ao projeto e registrada no procedimento da TI.
+
+### Testes pendentes de aceite
+- Configurar a secret key e validar convite real com entrega de e-mail.
+- Confirmar primeiro acesso, definição de senha e redirecionamento para /app.
+- Validar convite duplicado, domínio não autorizado, usuário não-admin tentando abrir/acionar ações administrativas.
+- Validar edição, mudança de papel, desativação/reativação e proteção do último administrador.
+- Confirmar eventos em `audit_logs` e revisar o Supabase Security Advisor.
