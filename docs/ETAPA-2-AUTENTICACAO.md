@@ -44,10 +44,10 @@ A criação de contas continua reservada ao fluxo administrativo da TI, previsto
 
 ## Limites e testes ainda necessários
 
-- Não foi criado usuário real ou fictício.
-- Não foi possível executar login ponta a ponta sem uma conta ativa e credenciais de teste autorizadas.
-- Não foi executado `npm install`, `npm run typecheck`, `npm run lint` ou `npm run build` em ambiente de execução; os arquivos foram versionados diretamente no GitHub.
-- O deploy Vercel e suas variáveis de ambiente não foram alterados nesta etapa. O projeto Vercel existente não foi associado automaticamente, pois a conexão com este repositório precisa ser confirmada antes de qualquer alteração.
+- Foi criada uma conta corporativa de teste autorizada e vinculada a um perfil ativo em `public.profiles`; a conta está confirmada no Supabase Auth. As credenciais não são registradas na documentação.
+- O teste ponta a ponta de login, sessão, renovação e logout ainda precisa ser executado pelo usuário no navegador; a senha não é acessível à equipe de validação.
+- O primeiro CI do PR (#71, execução 7) falhou na instalação: `@supabase/ssr@0.12.7` exige `@supabase/supabase-js@^2.114.0`, mas o projeto estava fixado em `2.89.0`. A dependência foi atualizada para `2.114.0`; a execução seguinte deve confirmar a resolução e executar typecheck, lint e build.
+- O projeto Vercel `chatp` foi confirmado como conectado ao repositório `otaviosferreira/chatp`. As variáveis `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` foram cadastradas para Preview, Production e Development. Nenhum segredo `service_role` foi configurado no frontend.
 - O fluxo de recuperação de senha, MFA e gerenciamento de contas fica fora do escopo desta etapa.
 - A proteção contra senhas vazadas continua como pendência previamente registrada; não declarar resolvida.
 
@@ -66,12 +66,13 @@ A Etapa 3 não deve começar até a aprovação explícita desta entrega.
 - Projeto Supabase confirmado pelo conector: `xspfkbqfjgklqplkevfx`, nome `1272616632@ulife.com.br's Project`, status `ACTIVE_HEALTHY`, região `us-east-2`. O nome corresponde ao projeto exibido na captura do painel.
 - O usuário mostrou a tela **Authentication → Sign In / Providers** com **Allow new users to sign up** desligado e informou que poderia continuar. A gravação foi indicada pelo usuário; não há leitura programática independente da configuração global do Auth nesta integração.
 - Banco: 7/7 tabelas públicas com RLS habilitado; 11 políticas RLS; zero concessões de tabela para `anon`.
-- Banco: zero usuários em `auth.users` e zero perfis em `public.profiles`; nenhum dado de funcionário foi criado.
+- Banco: a conta de teste autorizada está presente em `auth.users`, com e-mail confirmado, e possui perfil `active` com papel `employee` em `public.profiles`.
 - Privilégios: `authenticated` não possui `DELETE` nem `UPDATE` em `public.profiles`.
 - Supabase Security Advisor: sem alertas retornados nesta consulta.
 - Supabase Performance Advisor: apenas alertas informativos de índices ainda não utilizados, esperado em banco sem carga de uso.
-- GitHub: PR em rascunho #71 aberto para revisão; não mesclado. O commit não apresentou status/checks do GitHub Actions nesta consulta, portanto CI não está comprovado como executado.
+- GitHub: PR em rascunho #71 aberto para revisão; não mesclado. A execução CI #7 foi localizada e falhou em `npm install` por incompatibilidade de peer dependency; typecheck, lint e build foram ignorados. A correção foi aplicada no `package.json`, aguardando nova execução.
+- Vercel: projeto `chatp` vinculado ao repositório correto; as duas variáveis públicas do Supabase foram cadastradas nos ambientes Preview, Production e Development. A primeira implantação Preview ainda precisa ser gerada e verificada.
 
 ### Resultado
 
-Os controles de banco e a configuração visual de signup foram verificados estruturalmente. O teste ponta a ponta de login, sessão, renovação e logout permanece bloqueado pela ausência deliberada de uma conta de teste autorizada. Typecheck, lint e build também permanecem pendentes até o GitHub Actions executar com sucesso ou o projeto ser executado em ambiente Node compatível.
+Os controles estruturais do banco e a configuração visual de signup foram verificados. A conta de teste autorizada está criada e ativa. A incompatibilidade de dependências que impedia o CI foi corrigida; a nova execução do pipeline e a implantação Preview são necessárias para comprovar typecheck, lint e build. O teste de login, sessão, renovação e logout depende de execução no navegador com a senha definida pelo usuário.
