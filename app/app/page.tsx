@@ -17,7 +17,6 @@ export default async function AppHomePage() {
     .maybeSingle();
 
   if (profileError || !profile || profile.status !== "active") {
-    await supabase.auth.signOut();
     redirect("/login?reason=inactive");
   }
 
