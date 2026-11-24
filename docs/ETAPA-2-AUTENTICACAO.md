@@ -63,7 +63,7 @@ A criação de contas continua reservada ao fluxo administrativo da TI, previsto
 4. Validar login válido, senha inválida, usuário sem perfil, perfil desabilitado, renovação de sessão, rota protegida e logout.
 5. Executar typecheck, lint e build.
 
-A Etapa 3 não deve começar até a aprovação explícita desta entrega.
+A Etapa 3 foi autorizada pelo responsável após confirmação de login válido na implantação Preview em 24/11/2026. Os testes de senha inválida, renovação e logout permanecem como regressão a executar.
 
 ## Registro de validações realizadas em 24/11/2026
 
