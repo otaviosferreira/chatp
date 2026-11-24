@@ -15,3 +15,13 @@ O repositório foi inicializado para a execução linear do projeto. A primeira 
 - Nenhuma etapa futura começa sem aprovação explícita da etapa anterior.
 
 Consulte `docs/ETAPA-1-ESPECIFICACAO-TECNICA.md` e `supabase/migrations/20261124191241_etapa_1_modelo_dados_seguranca.sql`.
+
+## Etapa 2 — Autenticação
+
+A implementação inicial de autenticação está na branch `feat/etapa-2-autenticacao`. Consulte [a especificação da Etapa 2](docs/ETAPA-2-AUTENTICACAO.md).
+
+- Login por e-mail/senha via Supabase Auth.
+- Sessões SSR por cookies e renovação por `proxy.ts`.
+- Rotas protegidas e bloqueio de perfis não ativos.
+- Sem auto-cadastro na interface.
+- Signup global do Supabase ainda precisa ser desabilitado no painel; ver documentação da etapa.
