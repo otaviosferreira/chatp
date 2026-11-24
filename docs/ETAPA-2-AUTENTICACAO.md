@@ -13,7 +13,7 @@
 - Proxy de atualização de sessão e verificação de claims em cada requisição.
 - Rota `/app` protegida no servidor; consulta atualizada do usuário e do perfil.
 - Autorização exige registro em `public.profiles` com `status = active`.
-- Conta sem perfil, desabilitada ou com falha de consulta é desconectada e não recebe a área protegida.
+- Conta sem perfil, desabilitada ou com falha de consulta não recebe a área protegida; a rota falha fechada e retorna ao login.
 - Logout no servidor e redirecionamento para login.
 - Nenhuma interface, ação ou rota de auto-cadastro.
 - Chave publishable apenas no cliente; nenhuma service-role/secret no código web.
