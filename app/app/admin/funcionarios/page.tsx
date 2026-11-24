@@ -17,6 +17,7 @@ const messages: Record<string, string> = {
   "nao-encontrado": "Funcionário não encontrado.",
   "ultimo-admin": "A operação bloquearia o último administrador ativo.",
   atualizacao: "Não foi possível atualizar o cadastro.",
+  config: "A URL pública do ChatApp não está configurada no ambiente. A TI deve definir NEXT_PUBLIC_SITE_URL antes de enviar convites.",
 };
 
 export default async function EmployeesAdminPage({ searchParams }: { searchParams: SearchParams }) {
