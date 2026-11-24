@@ -54,10 +54,13 @@ export async function inviteEmployee(formData: FormData) {
   if (fullName.length < 2 || fullName.length > 160) redirect("/app/admin/funcionarios?error=nome");
   if (!validEmail(email)) redirect("/app/admin/funcionarios?error=dominio");
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+  if (!siteUrl) redirect("/app/admin/funcionarios?error=config");
+
   const admin = createAdminClient();
   const { data: invited, error: inviteError } = await admin.auth.admin.inviteUserByEmail(email, {
     data: { full_name: fullName },
-    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || "https://chatp-ten.vercel.app"}/auth/confirm`,
+    redirectTo: `${siteUrl.replace(/\\/$/, "")}/auth/confirm`,
   });
 
   if (inviteError || !invited.user) {
