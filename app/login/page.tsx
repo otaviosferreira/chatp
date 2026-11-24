@@ -8,7 +8,7 @@ export default async function LoginPage({
   const params = await searchParams;
   return (
     <main className="auth-shell">
-      <section className="auth-brand" aria-label="ChatApp Calunga">
+      <section className="auth-brand" aria-label="ChatP Calunga">
         <div className="brand-mark"><span className="brand-symbol" aria-hidden="true">C</span> CALUNGA</div>
         <div className="brand-copy">
           <h1>Conexão segura. Comunicação interna.</h1>
