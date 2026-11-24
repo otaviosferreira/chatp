@@ -47,6 +47,7 @@ async function writeAudit(actorId: string, action: string, targetId: string, met
 
 export async function inviteEmployee(formData: FormData) {
   const { user } = await requireItAdmin();
+  if (!process.env.SUPABASE_SECRET_KEY) redirect("/app/admin/funcionarios?error=secret");
   const fullName = value(formData, "full_name");
   const email = value(formData, "email").toLowerCase();
   const department = value(formData, "department");
@@ -89,6 +90,7 @@ export async function inviteEmployee(formData: FormData) {
 
 export async function updateEmployee(formData: FormData) {
   const { user } = await requireItAdmin();
+  if (!process.env.SUPABASE_SECRET_KEY) redirect("/app/admin/funcionarios?error=secret");
   const targetId = value(formData, "user_id");
   const fullName = value(formData, "full_name");
   const department = value(formData, "department");
