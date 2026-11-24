@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "ChatApp | Calunga",
+  title: "ChatP | Calunga",
   description: "Comunicação corporativa interna da Calunga.",
   robots: { index: false, follow: false },
 };
