@@ -45,13 +45,13 @@ A criação de contas continua reservada ao fluxo administrativo da TI, previsto
 ## Limites e testes ainda necessários
 
 - Foi criada uma conta corporativa de teste autorizada e vinculada a um perfil ativo em `public.profiles`; a conta está confirmada no Supabase Auth. As credenciais não são registradas na documentação.
-- O teste ponta a ponta de login, sessão, renovação e logout ainda precisa ser executado pelo usuário no navegador; a senha não é acessível à equipe de validação.
+- O usuário confirmou login válido no Preview em 24/11/2026. Senha inválida, renovação de sessão e logout permanecem como regressão manual; a senha do usuário não é acessível à equipe de validação.
 - O primeiro CI do PR (#71, execução 7) falhou na instalação: `@supabase/ssr@0.12.7` exige `@supabase/supabase-js@^2.114.0`, mas o projeto estava fixado em `2.89.0`. A dependência foi atualizada para `2.114.0`.
 - O Next.js foi atualizado de `16.0.3` para `16.4.5`, junto com `eslint-config-next@16.4.5`, para incorporar as correções de segurança da linha 16.4.
 - O CI do GitHub no commit `dc7366d` concluiu com sucesso nas execuções push #12 e PR #13: instalação, TypeScript, ESLint e build de produção aprovados.
 - O projeto Vercel `chatp` foi confirmado como conectado ao repositório `otaviosferreira/chatp`. As variáveis `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` foram cadastradas para Preview, Production e Development. Nenhum segredo `service_role` foi configurado no frontend.
 - A configuração Vercel foi corrigida para framework Next.js, Node 22.x, diretório de saída automático, comando de build `npm run lint && npm run build` e proteção SSO desativada para permitir abrir a tela pública de login sem conta Vercel. A autenticação da aplicação continua obrigatória para `/app`.
-- A implantação Preview da branch foi solicitada e aguarda a conclusão do build para disponibilizar a URL final.
+- A implantação Preview da Etapa 2 atingiu `READY`; o usuário confirmou que conseguiu entrar com a conta de teste.
 - O fluxo de recuperação de senha, MFA e gerenciamento de contas fica fora do escopo desta etapa.
 - A proteção contra senhas vazadas continua como pendência previamente registrada; não declarar resolvida.
 
@@ -80,7 +80,7 @@ A Etapa 3 foi autorizada pelo responsável após confirmação de login válido 
 
 ### Resultado
 
-Os controles estruturais do banco e a configuração visual de signup foram verificados. A conta de teste autorizada está criada e ativa. A incompatibilidade de dependências foi corrigida e o CI passou em instalação, TypeScript, ESLint e build. A implantação Preview ainda precisa atingir `READY`. O teste funcional de login, sessão, renovação e logout precisa ser realizado no navegador com a senha definida pelo usuário. O alerta `auth_leaked_password_protection` permanece pendente no plano Free e não deve ser declarado resolvido.
+Os controles estruturais do banco e a configuração visual de signup foram verificados. A conta de teste está ativa e o usuário confirmou login válido no Preview. A incompatibilidade de dependências foi corrigida e o CI passou em instalação, TypeScript, ESLint e build. Senha inválida, renovação e logout seguem como regressão manual. O alerta `auth_leaked_password_protection` permanece pendente no plano Free e não deve ser declarado resolvido.
 
 
 ## Etapa 3 — Administração de funcionários e provisionamento
@@ -103,17 +103,10 @@ Adicionar na Vercel, em **Preview** e **Production**, a variável secreta `SUPAB
 - `NEXT_PUBLIC_SITE_URL`: URL pública do ChatApp usada como destino do convite.
 - `CORPORATE_EMAIL_DOMAIN`: domínio corporativo sem @ (padrão `ulife.com.br`).
 
-A secret key concede acesso privilegiado e ignora RLS; a utilização foi isolada em `lib/supabase/admin.ts`, que importa `server-only`. Referência oficial: https://supabase.com/docs/guides/getting-started/migrating-to-new-api-keys
+A secret key concede acesso privilegiado e ignora RLS; a utilização foi isolada em `lib/supabase/admin.ts`, que importa `server-only`. `NEXT_PUBLIC_SITE_URL` foi configurada apenas para o Preview da branch atual. Antes de enviar convites, confirmar no Supabase Auth → URL Configuration que `https://chatp-git-feat-etapa-3-adm-c0bf1e-otavioferreira-5984s-projects.vercel.app/auth/confirm` está na lista de Redirect URLs. Referência oficial: https://supabase.com/docs/guides/getting-started/migrating-to-new-api-keys
 
 ### Bootstrap do primeiro administrador
-A primeira conta `it_admin` deve ser promovida por operador autorizado no SQL Editor do Supabase, após validar a identidade e o vínculo funcional. Não existe endpoint público para promover a si mesmo. Executar somente após aprovação interna:
-```sql
-update public.profiles
-set role = 'it_admin', updated_at = now()
-where id = '<UUID_VALIDADO>'
-  and status = 'active';
-```
-Não usar e-mail/UUID fornecido por formulário como autorização. A promoção inicial deve ser feita por operador com acesso ao projeto e registrada no procedimento da TI.
+A primeira conta `it_admin` foi promovida por SQL no Supabase em 24/11/2026, após validar que a conta de teste estava ativa e que ainda não existia administrador ativo. O evento `bootstrap.initial_admin_promoted` foi inserido em `audit_logs`. Não existe endpoint público para promover a si mesmo; novos administradores só podem ser designados por um administrador ativo.
 
 ### Testes pendentes de aceite
 - Configurar a secret key e validar convite real com entrega de e-mail.
