@@ -98,6 +98,8 @@ Os controles estruturais do banco e a configuração visual de signup foram veri
 - Registro server-side das operações administrativas em `audit_logs`.
 - Nenhuma operação de exclusão física de perfil.
 
+A migration `20261124205000_etapa_3_proteger_ultimo_admin.sql` foi aplicada ao projeto Supabase e verificada: trigger `profiles_protect_last_active_it_admin` habilitado em `public.profiles`. Teste negativo em transação controlada tentou desativar o único administrador ativo; a operação foi bloqueada e o perfil permaneceu `it_admin/active`. O Security Advisor continua retornando somente o alerta conhecido `auth_leaked_password_protection`.
+
 ### Configuração obrigatória para habilitar operações administrativas
 Adicionar na Vercel, em **Preview** e **Production**, a variável secreta `SUPABASE_SECRET_KEY` com a secret key do projeto Supabase. Ela deve ficar exclusivamente no servidor (nunca usar prefixo `NEXT_PUBLIC_`, não inserir no GitHub e não compartilhar no chat). A aplicação também usa:
 - `NEXT_PUBLIC_SITE_URL`: URL pública do ChatApp usada como destino do convite.
