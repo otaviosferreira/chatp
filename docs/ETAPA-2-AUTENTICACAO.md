@@ -46,8 +46,12 @@ A criação de contas continua reservada ao fluxo administrativo da TI, previsto
 
 - Foi criada uma conta corporativa de teste autorizada e vinculada a um perfil ativo em `public.profiles`; a conta está confirmada no Supabase Auth. As credenciais não são registradas na documentação.
 - O teste ponta a ponta de login, sessão, renovação e logout ainda precisa ser executado pelo usuário no navegador; a senha não é acessível à equipe de validação.
-- O primeiro CI do PR (#71, execução 7) falhou na instalação: `@supabase/ssr@0.12.7` exige `@supabase/supabase-js@^2.114.0`, mas o projeto estava fixado em `2.89.0`. A dependência foi atualizada para `2.114.0`; a execução seguinte deve confirmar a resolução e executar typecheck, lint e build.
+- O primeiro CI do PR (#71, execução 7) falhou na instalação: `@supabase/ssr@0.12.7` exige `@supabase/supabase-js@^2.114.0`, mas o projeto estava fixado em `2.89.0`. A dependência foi atualizada para `2.114.0`.
+- O Next.js foi atualizado de `16.0.3` para `16.4.5`, junto com `eslint-config-next@16.4.5`, para incorporar as correções de segurança da linha 16.4.
+- O CI do GitHub no commit `dc7366d` concluiu com sucesso nas execuções push #12 e PR #13: instalação, TypeScript, ESLint e build de produção aprovados.
 - O projeto Vercel `chatp` foi confirmado como conectado ao repositório `otaviosferreira/chatp`. As variáveis `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` foram cadastradas para Preview, Production e Development. Nenhum segredo `service_role` foi configurado no frontend.
+- A configuração Vercel foi corrigida para framework Next.js, Node 22.x, diretório de saída automático, comando de build `npm run lint && npm run build` e proteção SSO desativada para permitir abrir a tela pública de login sem conta Vercel. A autenticação da aplicação continua obrigatória para `/app`.
+- A implantação Preview da branch foi solicitada e aguarda a conclusão do build para disponibilizar a URL final.
 - O fluxo de recuperação de senha, MFA e gerenciamento de contas fica fora do escopo desta etapa.
 - A proteção contra senhas vazadas continua como pendência previamente registrada; não declarar resolvida.
 
@@ -70,9 +74,10 @@ A Etapa 3 não deve começar até a aprovação explícita desta entrega.
 - Privilégios: `authenticated` não possui `DELETE` nem `UPDATE` em `public.profiles`.
 - Supabase Security Advisor: sem alertas retornados nesta consulta.
 - Supabase Performance Advisor: apenas alertas informativos de índices ainda não utilizados, esperado em banco sem carga de uso.
-- GitHub: PR em rascunho #71 aberto para revisão; não mesclado. A execução CI #7 foi localizada e falhou em `npm install` por incompatibilidade de peer dependency; typecheck, lint e build foram ignorados. A correção foi aplicada no `package.json`, aguardando nova execução.
-- Vercel: projeto `chatp` vinculado ao repositório correto; as duas variáveis públicas do Supabase foram cadastradas nos ambientes Preview, Production e Development. A primeira implantação Preview ainda precisa ser gerada e verificada.
+- GitHub: PR em rascunho #71 aberto para revisão; não mesclado. As execuções push #12 e PR #13 passaram em instalação, TypeScript, ESLint e build.
+- Dependências: `@supabase/supabase-js` atualizado para `2.114.0`; Next.js e `eslint-config-next` atualizados para `16.4.5`.
+- Vercel: projeto `chatp` vinculado ao repositório correto; variáveis públicas do Supabase cadastradas nos ambientes Preview, Production e Development; framework e saída Next.js corrigidos; proteção SSO removida para acesso à tela de login sem conta Vercel. Preview solicitado, aguardando status `READY`.
 
 ### Resultado
 
-Os controles estruturais do banco e a configuração visual de signup foram verificados. A conta de teste autorizada está criada e ativa. A incompatibilidade de dependências que impedia o CI foi corrigida; a nova execução do pipeline e a implantação Preview são necessárias para comprovar typecheck, lint e build. O teste de login, sessão, renovação e logout depende de execução no navegador com a senha definida pelo usuário.
+Os controles estruturais do banco e a configuração visual de signup foram verificados. A conta de teste autorizada está criada e ativa. A incompatibilidade de dependências foi corrigida e o CI passou em instalação, TypeScript, ESLint e build. A implantação Preview ainda precisa atingir `READY`. O teste funcional de login, sessão, renovação e logout precisa ser realizado no navegador com a senha definida pelo usuário. O alerta `auth_leaked_password_protection` permanece pendente no plano Free e não deve ser declarado resolvido.
