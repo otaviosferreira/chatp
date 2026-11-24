@@ -60,7 +60,7 @@ export async function inviteEmployee(formData: FormData) {
   const admin = createAdminClient();
   const { data: invited, error: inviteError } = await admin.auth.admin.inviteUserByEmail(email, {
     data: { full_name: fullName },
-    redirectTo: `${siteUrl.replace(/\\/$/, "")}/auth/confirm`,
+    redirectTo: `${(siteUrl.endsWith("/") ? siteUrl.slice(0, -1) : siteUrl)}/auth/confirm`,
   });
 
   if (inviteError || !invited.user) {
