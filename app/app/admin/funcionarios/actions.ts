@@ -57,10 +57,11 @@ export async function inviteEmployee(formData: FormData) {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
   if (!siteUrl) redirect("/app/admin/funcionarios?error=config");
 
+  const redirectUrl = siteUrl.endsWith("/") ? siteUrl.slice(0, -1) : siteUrl;
   const admin = createAdminClient();
   const { data: invited, error: inviteError } = await admin.auth.admin.inviteUserByEmail(email, {
     data: { full_name: fullName },
-    redirectTo: `${(siteUrl.endsWith("/") ? siteUrl.slice(0, -1) : siteUrl)}/auth/confirm`,
+    redirectTo: `${redirectUrl}/auth/confirm`,
   });
 
   if (inviteError || !invited.user) {
