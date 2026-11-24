@@ -14,4 +14,4 @@ O repositório foi inicializado para a execução linear do projeto. A primeira 
 - Auditoria de TI com trilha de acesso e fluxo formal de solicitação.
 - Nenhuma etapa futura começa sem aprovação explícita da etapa anterior.
 
-Consulte `docs/ETAPA-1-ESPECIFICACAO-TECNICA.md` e `supabase/migrations/20261124160000_etapa_1_modelo_dados_seguranca.sql`.
+Consulte `docs/ETAPA-1-ESPECIFICACAO-TECNICA.md` e `supabase/migrations/20261124191241_etapa_1_modelo_dados_seguranca.sql`.
