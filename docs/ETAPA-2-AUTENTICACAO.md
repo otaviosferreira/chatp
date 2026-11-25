@@ -1,6 +1,6 @@
 # Etapa 2 — Autenticação e controle de acesso
 
-**Projeto:** ChatApp — Comunicação Corporativa Privada da Calunga  
+**Projeto:** ChatP — Comunicação Corporativa Privada da Calunga  
 **Repositório:** https://github.com/otaviosferreira/chatp  
 **Branch:** feat/etapa-2-autenticacao  
 **Supabase:** xspfkbqfjgklqplkevfx
@@ -52,7 +52,7 @@ A criação de contas continua reservada ao fluxo administrativo da TI, previsto
 - O projeto Vercel `chatp` foi confirmado como conectado ao repositório `otaviosferreira/chatp`. As variáveis `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` foram cadastradas para Preview, Production e Development. Nenhum segredo `service_role` foi configurado no frontend.
 - A configuração Vercel foi corrigida para framework Next.js, Node 22.x, diretório de saída automático, comando de build `npm run lint && npm run build` e proteção SSO desativada para permitir abrir a tela pública de login sem conta Vercel. A autenticação da aplicação continua obrigatória para `/app`.
 - A implantação Preview da Etapa 2 atingiu `READY`; o usuário confirmou que conseguiu entrar com a conta de teste.
-- O fluxo de recuperação de senha, MFA e gerenciamento de contas fica fora do escopo desta etapa.
+- Recuperação de senha: incluída na Etapa 3 por geração administrativa de link individual (`generateLink` tipo `recovery`), sem envio automático de e-mail; a TI encaminha o link por canal corporativo autorizado. MFA permanece fora do escopo da demo.
 - A proteção contra senhas vazadas continua como pendência previamente registrada; não declarar resolvida.
 
 ## Critérios para aprovação
@@ -72,11 +72,11 @@ A Etapa 3 foi autorizada pelo responsável após confirmação de login válido 
 - Banco: 7/7 tabelas públicas com RLS habilitado; 11 políticas RLS; zero concessões de tabela para `anon`.
 - Banco: a conta de teste autorizada está presente em `auth.users`, com e-mail confirmado, e possui perfil `active` com papel `employee` em `public.profiles`.
 - Privilégios: `authenticated` não possui `DELETE` nem `UPDATE` em `public.profiles`.
-- Supabase Security Advisor: sem alertas retornados nesta consulta.
+- Supabase Security Advisor: o aviso `auth_leaked_password_protection` permanece pendente no plano Free.
 - Supabase Performance Advisor: apenas alertas informativos de índices ainda não utilizados, esperado em banco sem carga de uso.
 - GitHub: PR em rascunho #71 aberto para revisão; não mesclado. As execuções push #12 e PR #13 passaram em instalação, TypeScript, ESLint e build.
 - Dependências: `@supabase/supabase-js` atualizado para `2.114.0`; Next.js e `eslint-config-next` atualizados para `16.4.5`.
-- Vercel: projeto `chatp` vinculado ao repositório correto; variáveis públicas do Supabase cadastradas nos ambientes Preview, Production e Development; framework e saída Next.js corrigidos; proteção SSO removida para acesso à tela de login sem conta Vercel. Preview solicitado, aguardando status `READY`.
+- Vercel: projeto `chatp` vinculado ao repositório correto; variáveis públicas do Supabase cadastradas nos ambientes Preview, Production e Development; framework e saída Next.js corrigidos; proteção SSO removida para acesso à tela de login sem conta Vercel. Preview da Etapa 2 em `READY`.
 
 ### Resultado
 
@@ -89,10 +89,10 @@ Os controles estruturais do banco e a configuração visual de signup foram veri
 
 ### Entregas implementadas
 - Área administrativa protegida por autenticação e validação server-side do papel `it_admin`.
-- Convite de funcionário por e-mail com Supabase Auth Admin API; não há senha compartilhada nem auto-cadastro.
+- Cadastro administrativo gera link individual via Supabase Auth Admin API (`generateLink`, tipo `invite`) sem disparar e-mail; a TI encaminha o link manualmente por canal corporativo autorizado. Não há senha compartilhada nem auto-cadastro.
 - Validação de domínio corporativo (`CORPORATE_EMAIL_DOMAIN`, padrão `ulife.com.br`).
 - Criação do perfil associado ao UUID do Auth; compensação com remoção do usuário Auth se a criação do perfil falhar.
-- Callback de convite via `/auth/confirm` e tela de primeiro acesso para definir senha (mínimo de 12 caracteres).
+- Callback de convite/recuperação via `/auth/confirm` e tela para definir ou redefinir senha (mínimo de 12 caracteres).
 - Edição de nome/departamento, atribuição de papel `employee/it_admin` e ativação/desativação.
 - Proteção contra auto-desativação/rebaixamento e contra desativar/rebaixar o último administrador ativo, reforçada por trigger PostgreSQL com advisory lock para evitar corrida entre operações concorrentes.
 - Registro server-side das operações administrativas em `audit_logs`.
@@ -101,18 +101,19 @@ Os controles estruturais do banco e a configuração visual de signup foram veri
 A migration `20261124205000_etapa_3_proteger_ultimo_admin.sql` foi aplicada ao projeto Supabase e verificada: trigger `profiles_protect_last_active_it_admin` habilitado em `public.profiles`. Teste negativo em transação controlada tentou desativar o único administrador ativo; a operação foi bloqueada e o perfil permaneceu `it_admin/active`. O Security Advisor continua retornando somente o alerta conhecido `auth_leaked_password_protection`.
 
 ### Configuração obrigatória para habilitar operações administrativas
-Adicionar na Vercel, em **Preview** e **Production**, a variável secreta `SUPABASE_SECRET_KEY` com a secret key do projeto Supabase. Ela deve ficar exclusivamente no servidor (nunca usar prefixo `NEXT_PUBLIC_`, não inserir no GitHub e não compartilhar no chat). A aplicação também usa:
-- `NEXT_PUBLIC_SITE_URL`: URL pública do ChatApp usada como destino do convite.
+A variável secreta `SUPABASE_SECRET_KEY` está configurada somente no ambiente **Preview** da branch de administração. Não foi configurada em Production; não habilitar Production até a aprovação e autorização de publicação. Ela deve ficar exclusivamente no servidor (nunca usar prefixo `NEXT_PUBLIC_`, não inserir no GitHub e não compartilhar no chat). A aplicação também usa:
+- `NEXT_PUBLIC_SITE_URL`: URL pública do Preview do ChatP usada como destino dos links de convite/recuperação.
 - `CORPORATE_EMAIL_DOMAIN`: domínio corporativo sem @ (padrão `ulife.com.br`).
 
-A secret key concede acesso privilegiado e ignora RLS; a utilização foi isolada em `lib/supabase/admin.ts`, que importa `server-only`. `NEXT_PUBLIC_SITE_URL` foi configurada apenas para o Preview da branch atual. Antes de enviar convites, confirmar no Supabase Auth → URL Configuration que `https://chatp-git-feat-etapa-3-adm-c0bf1e-otavioferreira-5984s-projects.vercel.app/auth/confirm` está na lista de Redirect URLs. Referência oficial: https://supabase.com/docs/guides/getting-started/migrating-to-new-api-keys
+A secret key concede acesso privilegiado e ignora RLS; a utilização foi isolada em `lib/supabase/admin.ts`, que importa `server-only`. `NEXT_PUBLIC_SITE_URL` foi configurada apenas para o Preview da branch atual. Antes de testar links, confirmar no Supabase Auth → URL Configuration que a URL de callback do Preview está na lista de Redirect URLs. Referência oficial: https://supabase.com/docs/guides/getting-started/migrating-to-new-api-keys
 
 ### Bootstrap do primeiro administrador
 A primeira conta `it_admin` foi promovida por SQL no Supabase em 24/11/2026, após validar que a conta de teste estava ativa e que ainda não existia administrador ativo. O evento `bootstrap.initial_admin_promoted` foi inserido em `audit_logs`. Não existe endpoint público para promover a si mesmo; novos administradores só podem ser designados por um administrador ativo.
 
 ### Testes pendentes de aceite
-- Configurar a secret key e validar convite real com entrega de e-mail.
-- Confirmar primeiro acesso, definição de senha e redirecionamento para /app.
+- Validar cadastro fictício, geração/cópia do link de primeiro acesso, callback e definição de senha; o fluxo não envia e-mail.
+- Validar link de recuperação, callback, definição de nova senha e redirecionamento para `/app`.
 - Validar convite duplicado, domínio não autorizado, usuário não-admin tentando abrir/acionar ações administrativas.
 - Validar edição, mudança de papel, desativação/reativação e proteção do último administrador.
+- Validar geração de link de recuperação apenas para funcionário ativo e registro da ação em `audit_logs`.
 - Confirmar eventos em `audit_logs` e revisar o Supabase Security Advisor.
