@@ -57,9 +57,6 @@ export default async function ConversationDetailPage({
     ? conversation.title || "Grupo sem nome"
     : otherNames[0] || "Conversa individual";
 
-  await supabase.rpc("mark_conversation_delivered", { p_conversation_id: id });
-  await supabase.rpc("mark_conversation_read", { p_conversation_id: id });
-
   const { data: messageRows } = await supabase.from("messages")
     .select("id,conversation_id,sender_id,body,created_at")
     .eq("conversation_id", id)
