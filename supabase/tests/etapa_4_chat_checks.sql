@@ -75,3 +75,40 @@ begin
   raise notice 'PASS: direct, group, RLS isolation, read receipts and membership controls passed.';
 end $$;
 rollback;
+
+-- Verificações de catálogo após o teste transacional.
+do $
+declare
+  fn text;
+begin
+  if not (select relrowsecurity from pg_catalog.pg_class where oid='public.message_receipts'::regclass) then
+    raise exception 'FAIL: RLS disabled on message_receipts';
+  end if;
+  if pg_catalog.has_table_privilege('anon','public.message_receipts','SELECT,INSERT,UPDATE,DELETE')
+     or pg_catalog.has_table_privilege('authenticated','public.message_receipts','INSERT,UPDATE,DELETE') then
+    raise exception 'FAIL: direct privileges are too broad on message_receipts';
+  end if;
+  if pg_catalog.has_table_privilege('authenticated','public.conversations','INSERT,UPDATE,DELETE')
+     or pg_catalog.has_table_privilege('authenticated','public.conversation_members','INSERT,UPDATE,DELETE') then
+    raise exception 'FAIL: direct write privileges remain on conversation tables';
+  end if;
+  foreach fn in array array[
+    'public.create_direct_conversation(uuid)',
+    'public.create_group_conversation(text,uuid[])',
+    'public.add_conversation_member(uuid,uuid)',
+    'public.remove_conversation_member(uuid,uuid)',
+    'public.leave_conversation(uuid)',
+    'public.mark_conversation_delivered(uuid)',
+    'public.mark_conversation_read(uuid)'
+  ] loop
+    if pg_catalog.has_function_privilege('anon',fn,'EXECUTE') then raise exception 'FAIL: anon can execute %',fn; end if;
+    if not pg_catalog.has_function_privilege('authenticated',fn,'EXECUTE') then raise exception 'FAIL: authenticated cannot execute %',fn; end if;
+    if not exists (select 1 from pg_catalog.pg_proc p where p.oid=fn::regprocedure and p.prosecdef and coalesce(p.proconfig @> array['search_path=""'],false)) then
+      raise exception 'FAIL: unsafe SECURITY DEFINER configuration for %',fn;
+    end if;
+  end loop;
+  if (select count(*) from pg_catalog.pg_publication_tables where pubname='supabase_realtime' and schemaname='public' and tablename in ('messages','message_receipts','conversations','conversation_members')) <> 4 then
+    raise exception 'FAIL: Realtime publication incomplete';
+  end if;
+  raise notice 'PASS: RLS, grants, SECURITY DEFINER configuration and Realtime publication verified.';
+end $;
