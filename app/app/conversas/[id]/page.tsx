@@ -104,6 +104,7 @@ export default async function ConversationDetailPage({
 
         <div className="chat-detail-grid">
           <ChatThread
+            key={id}
             conversationId={id}
             currentUserId={user.id}
             initialMessages={initialMessages}
