@@ -39,11 +39,6 @@ export function ChatThread({
   const listEnd = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setMessages(initialMessages);
-    setReceipts(initialReceipts);
-  }, [initialMessages, initialReceipts]);
-
-  useEffect(() => {
     const channel = supabase
       .channel(`chatp-conversation-${conversationId}`)
       .on("postgres_changes", {
@@ -89,7 +84,7 @@ export function ChatThread({
     return () => {
       void supabase.removeChannel(channel);
     };
-  }, [conversationId, currentUserId, supabase, initialMessages, initialReceipts]);
+  }, [conversationId, currentUserId, supabase]);
 
   useEffect(() => {
     listEnd.current?.scrollIntoView({ behavior: "smooth", block: "end" });
