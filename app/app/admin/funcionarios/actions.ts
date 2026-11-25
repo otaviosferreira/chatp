@@ -60,6 +60,9 @@ export async function inviteEmployee(formData: FormData) {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
   if (!siteUrl) redirect("/app/admin/funcionarios?error=config");
 
+  const cookieStore = await cookies();
+  cookieStore.delete(INVITE_COOKIE);
+
   const redirectUrl = siteUrl.endsWith("/") ? siteUrl.slice(0, -1) : siteUrl;
   const admin = createAdminClient();
 
@@ -101,12 +104,11 @@ export async function inviteEmployee(formData: FormData) {
   await writeAudit(user.id, "employee.invited", generated.user.id, { email, department });
 
   // Link temporário fica em cookie HttpOnly, disponível apenas na área administrativa.
-  const cookieStore = await cookies();
   cookieStore.set(INVITE_COOKIE, generated.properties.action_link, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
-    path: "/app/admin/funcionarios",
+    path: "/",
     maxAge: 10 * 60,
   });
 
