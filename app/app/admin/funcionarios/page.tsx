@@ -22,7 +22,7 @@ const messages: Record<string, string> = {
   "nao-encontrado": "Funcionário não encontrado.",
   "ultimo-admin": "A operação bloquearia o último administrador ativo.",
   atualizacao: "Não foi possível atualizar o cadastro.",
-  config: "A URL pública do ChatP não está configurada no ambiente. A TI deve definir NEXT_PUBLIC_SITE_URL.",
+  config: "Não foi possível identificar a URL pública do ChatP. Verifique as variáveis de ambiente da Vercel.",
   secret: "A chave administrativa do Supabase ainda não está configurada na Vercel. A TI deve adicionar SUPABASE_SECRET_KEY como variável secreta do servidor.",
 };
 
