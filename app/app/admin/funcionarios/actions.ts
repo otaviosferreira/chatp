@@ -88,17 +88,38 @@ export async function inviteEmployee(formData: FormData) {
     redirect("/app/admin/funcionarios?error=convite");
   }
 
-  const { error: profileError } = await admin.from("profiles").insert({
-    id: generated.user.id,
-    full_name: fullName,
-    email,
-    department: department || null,
-    role: "employee",
-    status: "active",
-  });
+  // generateLink may return an Auth user whose profile was already created by a
+  // previous partial attempt. Reuse that row instead of failing on profiles_pkey.
+  const { data: existingProfile, error: existingProfileError } = await admin
+    .from("profiles")
+    .select("id,email")
+    .eq("id", generated.user.id)
+    .maybeSingle();
 
-  if (profileError) {
-    await admin.auth.admin.deleteUser(generated.user.id);
+  if (existingProfileError || (existingProfile && existingProfile.email.toLowerCase() !== email)) {
+    redirect("/app/admin/funcionarios?error=perfil");
+  }
+
+  const profileWrite = existingProfile
+    ? await admin.from("profiles").update({
+        full_name: fullName,
+        department: department || null,
+        role: "employee",
+        status: "active",
+        updated_at: new Date().toISOString(),
+      }).eq("id", generated.user.id)
+    : await admin.from("profiles").insert({
+        id: generated.user.id,
+        full_name: fullName,
+        email,
+        department: department || null,
+        role: "employee",
+        status: "active",
+      });
+
+  if (profileWrite.error) {
+    // Do not delete the Auth user here: the profile may already exist and is
+    // protected by the historical-record foreign key.
     redirect("/app/admin/funcionarios?error=perfil");
   }
 
