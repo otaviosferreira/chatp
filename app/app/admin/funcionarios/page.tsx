@@ -66,7 +66,7 @@ export default async function EmployeesAdminPage({ searchParams }: { searchParam
             <h2 id="invite-link-title">Link de primeiro acesso</h2>
             <p className="muted">Copie o link e encaminhe diretamente ao funcionário por um canal corporativo autorizado. Ele permite ativar a conta e definir uma senha. Não publique nem compartilhe em grupos.</p>
             <p><a className="secondary-link" href={inviteLink} target="_blank" rel="noreferrer">Abrir link de primeiro acesso</a></p>
-            <label>Link individual<input readOnly value={inviteLink} onFocus={(event) => event.currentTarget.select()} /></label>
+            <label>Link individual<input readOnly value={inviteLink} /></label>
             <form action={clearInviteLink}>
               <button className="secondary-action" type="submit">Ocultar e descartar link desta tela</button>
             </form>
