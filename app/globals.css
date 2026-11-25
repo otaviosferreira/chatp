@@ -196,3 +196,32 @@ button, input { font: inherit; }
   .message-list { max-height: 56vh; }
   .employee-chat-row { align-items: flex-start; }
 }
+
+.admin-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 24px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+.admin-tab { padding: 9px 14px; border-radius: 8px; color: var(--muted); text-decoration: none; font-size: .88rem; font-weight: 700; }
+.admin-tab:hover { background: #f1f5f9; color: var(--navy); }
+.admin-tab.active { background: #e8f0f8; color: var(--navy); }
+.audit-filters { display: grid; grid-template-columns: repeat(4,minmax(130px,1fr)) auto auto; gap: 12px; align-items: end; margin-top: 16px; }
+.audit-filters label { display: grid; gap: 6px; color: #334155; font-size: .82rem; font-weight: 700; }
+.audit-filters input, .audit-filters select { width: 100%; min-height: 42px; padding: 8px; border: 1px solid #cbd5e1; border-radius: 8px; background: white; color: var(--ink); }
+.audit-filters .primary-button { margin: 0; min-height: 42px; padding: 0 14px; }
+.audit-table-wrap { width: 100%; overflow-x: auto; margin-top: 14px; }
+.audit-table { width: 100%; border-collapse: collapse; font-size: .82rem; }
+.audit-table th, .audit-table td { padding: 11px 10px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+.audit-table th { color: var(--muted); font-size: .72rem; text-transform: uppercase; letter-spacing: .04em; }
+.audit-table td small { display: block; margin-top: 4px; color: var(--muted); overflow-wrap: anywhere; }
+.audit-table pre { max-width: 320px; overflow: auto; white-space: pre-wrap; font-size: .72rem; }
+.audit-pagination { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 18px; }
+.audit-pagination > div { display: flex; gap: 14px; }
+.record-list { display: grid; margin-top: 12px; }
+.record-row { display: flex; justify-content: space-between; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.record-row > div { display: grid; gap: 4px; }
+.record-row > div:last-child { text-align: right; }
+.record-row small { color: var(--muted); font-size: .76rem; overflow-wrap: anywhere; }
+.settings-list { display: grid; margin: 10px 0 0; }
+.settings-list > div { display: grid; grid-template-columns: minmax(220px, .8fr) 1.2fr; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.settings-list dt { color: var(--muted); font-size: .85rem; }
+.settings-list dd { margin: 0; color: var(--ink); font-weight: 700; overflow-wrap: anywhere; }
+.settings-links { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
+@media (max-width: 900px) { .audit-filters { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+@media (max-width: 560px) { .audit-filters { grid-template-columns: 1fr; } .record-row { flex-direction: column; } .record-row > div:last-child { text-align: left; } .settings-list > div { grid-template-columns: 1fr; gap: 4px; } }
