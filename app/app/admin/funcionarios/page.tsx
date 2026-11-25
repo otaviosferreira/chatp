@@ -2,7 +2,7 @@ import { cookies } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { clearInviteLink, inviteEmployee, updateEmployee } from "./actions";
+import { clearInviteLink, clearRecoveryLink, generatePasswordRecoveryLink, inviteEmployee, updateEmployee } from "./actions";
 import { InviteLinkActions } from "./invite-link-actions";
 
 export const dynamic = "force-dynamic";
@@ -13,6 +13,8 @@ const messages: Record<string, string> = {
   nome: "Informe um nome válido.",
   dominio: "Use um e-mail do domínio corporativo autorizado.",
   convite: "Não foi possível gerar o link de primeiro acesso. Consulte os registros de Auth do Supabase.",
+  recuperacao: "Não foi possível gerar o link de recuperação. Verifique o cadastro e os registros de Auth.",
+  "conta-desativada": "Não é possível gerar recuperação para uma conta desativada. Reative o acesso primeiro.",
   "email-existente": "Este endereço já possui uma conta no Supabase Auth. Verifique o diretório ou utilize outro endereço corporativo.",
   perfil: "O cadastro não foi concluído porque o perfil não pôde ser criado.",
   dados: "Confira os dados informados.",
@@ -41,6 +43,7 @@ export default async function EmployeesAdminPage({ searchParams }: { searchParam
   const params = await searchParams;
   const cookieStore = await cookies();
   const inviteLink = cookieStore.get("chatp_admin_invite_link")?.value;
+  const recoveryLink = cookieStore.get("chatp_admin_recovery_link")?.value;
 
   return (
     <main className="app-shell">
@@ -60,7 +63,21 @@ export default async function EmployeesAdminPage({ searchParams }: { searchParam
 
         {params.success === "link" && <p className="success-notice">Funcionário cadastrado. O link individual de primeiro acesso está disponível abaixo por tempo limitado.</p>}
         {params.success === "atualizado" && <p className="success-notice">Cadastro atualizado e alteração registrada na auditoria.</p>}
+        {params.success === "recuperacao" && <p className="success-notice">Link de recuperação gerado. Encaminhe-o diretamente ao funcionário por um canal corporativo autorizado.</p>}
         {params.error && <p className="notice">{messages[params.error] || "Não foi possível concluir a operação."}</p>}
+
+        {recoveryLink && (
+          <section className="admin-card" aria-labelledby="recovery-link-title">
+            <h2 id="recovery-link-title">Link de recuperação de senha</h2>
+            <p className="muted">Encaminhe individualmente ao funcionário por um canal corporativo autorizado. O link permite definir uma nova senha e não deve ser publicado nem compartilhado em grupos.</p>
+            <p><a className="secondary-link" href={recoveryLink} target="_blank" rel="noreferrer">Abrir link de recuperação</a></p>
+            <InviteLinkActions inviteLink={recoveryLink} purpose="password-recovery" />
+            <form action={clearRecoveryLink}>
+              <button className="secondary-action" type="submit">Ocultar e descartar link desta tela</button>
+            </form>
+            <p className="admin-footnote">O link fica disponível nesta sessão administrativa por até 10 minutos. A validade do token é controlada pelo Supabase Auth.</p>
+          </section>
+        )}
 
         {inviteLink && (
           <section className="admin-card" aria-labelledby="invite-link-title">
@@ -105,7 +122,7 @@ export default async function EmployeesAdminPage({ searchParams }: { searchParam
                   <label>Status<select name="status" defaultValue={employee.status}>
                     <option value="active">Ativo</option><option value="disabled">Desativado</option>
                   </select></label>
-                  <button className="secondary-action" type="submit">Salvar alterações</button>
+                  <div className="employee-actions"><button className="secondary-action" type="submit">Salvar alterações</button>{employee.status === "active" && <button className="secondary-action" type="submit" formAction={generatePasswordRecoveryLink}>Gerar link de recuperação</button>}</div>
                 </form>
               ))}
               {(!employees || employees.length === 0) && <p className="muted">Nenhum funcionário cadastrado.</p>}
