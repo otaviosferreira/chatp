@@ -77,7 +77,7 @@ end $$;
 rollback;
 
 -- Verificações de catálogo após o teste transacional.
-do $
+do $check$
 declare
   fn text;
 begin
@@ -111,4 +111,4 @@ begin
     raise exception 'FAIL: Realtime publication incomplete';
   end if;
   raise notice 'PASS: RLS, grants, SECURITY DEFINER configuration and Realtime publication verified.';
-end $;
+end $check$;
