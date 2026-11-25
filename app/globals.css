@@ -112,6 +112,7 @@ button, input { font: inherit; }
 .admin-submit { align-self: end; min-height: 42px; margin: 0; }
 .employee-list { display: grid; gap: 14px; margin-top: 18px; }
 .employee-row { display: grid; grid-template-columns: minmax(150px, 1.2fr) repeat(4, minmax(120px, 1fr)) auto; align-items: end; gap: 12px; padding: 16px 0; border-top: 1px solid var(--line); }
+.employee-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 .employee-identity { display: grid; align-content: center; gap: 5px; min-width: 0; }
 .employee-identity strong { color: var(--navy); overflow-wrap: anywhere; }
 .employee-identity span, .employee-identity small { color: var(--muted); font-size: .78rem; overflow-wrap: anywhere; }
@@ -130,6 +131,7 @@ button, input { font: inherit; }
   .admin-main { width: min(100% - 24px, 1180px); margin-top: 24px; }
   .admin-heading, .section-title-row { align-items: flex-start; flex-direction: column; }
   .admin-form, .employee-row { grid-template-columns: 1fr; }
+  .employee-actions { flex-direction: column; }
   .admin-header-subtitle { margin-left: 0; }
   .app-header { flex-wrap: wrap; }
 }
