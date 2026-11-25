@@ -1,9 +1,9 @@
 # Etapa 1 — Especificação técnica, modelo de dados e segurança
 
-**Projeto:** ChatApp — Comunicação Corporativa Privada da Calunga  
+**Projeto:** ChatP — Comunicação Corporativa Privada da Calunga  
 **Repositório:** https://github.com/otaviosferreira/chatp  
 **Supabase:** projeto `xspfkbqfjgklqplkevfx`  
-**Status:** estrutura e controles iniciais aplicados; etapa aguardando aprovação.
+**Status:** estrutura aplicada e verificação estrutural executada; pendências de autenticação, anexos e governança permanecem registradas.
 
 ## 1. Diagnóstico do ambiente
 
@@ -80,7 +80,7 @@ Autorização é baseada no registro de perfil no banco (não em `user_metadata`
 |---|---|
 | 7 tabelas esperadas criadas | PASSOU |
 | RLS habilitado nas 7 tabelas | PASSOU |
-| Security Advisor | PASSOU — nenhum alerta retornado |
+| Supabase Security Advisor (consulta em 25/11/2026 após Etapa 4) | ATENÇÃO — 1 alerta `auth_leaked_password_protection` e 7 avisos genéricos das RPCs `SECURITY DEFINER` intencionais da Etapa 4 |
 | Papel `authenticated` sem DELETE em `profiles` | PASSOU |
 | Papel `anon` sem SELECT em mensagens | PASSOU |
 | Papel `anon` sem executar checagem de TI | PASSOU |
@@ -97,18 +97,27 @@ Autorização é baseada no registro de perfil no banco (não em `user_metadata`
 
 Os testes de mídia foram feitos em tabela temporária criada com as mesmas constraints da tabela real, sem inserir dados pessoais. Os testes de UPDATE/DELETE da auditoria foram feitos em tabela temporária usando a mesma função trigger; os triggers reais e privilégios foram verificados por catálogo. Não foi executado teste com usuários reais. O Performance Advisor ainda lista índices como não utilizados porque o banco está vazio e não há carga de consultas; não identificou FKs sem índice após a correção.
 
-## 8. Pendências deliberadas para etapas futuras
+### Verificação estrutural repetível (24/11/2026)
+Foi criado `supabase/tests/etapa_1_security_checks.sql`, executado com sucesso no projeto Supabase de desenvolvimento. O script é somente leitura e verifica: existência das sete tabelas, RLS em todas as tabelas de `public`, ausência de privilégios diretos de `anon`, ausência de escritas não previstas para `authenticated`, isolamento do schema `private`, `search_path` vazio nas funções `SECURITY DEFINER`, triggers críticos ativos e inexistência de buckets públicos.
 
-- Etapa 2: Auth, sessões, bloqueio efetivo de rotas e cadastro público desativado.
-- Etapa 3: backend administrativo para criar/habilitar/desabilitar contas, sem endpoint de exclusão.
-- Etapa 4: regras completas de criação de conversas, envio, Realtime e política de retenção.
-- Etapa 5: bucket privado, validação de magic bytes, limites de tamanho e antivírus.
-- Etapa 6: interface e trilha detalhada de consulta/auditoria.
-- Etapa 7: design system oficial (aguarda arquivos/cores/logotipo fornecidos pela Calunga).
-- Etapa 8: testes E2E e deploy.
+Resultado da execução: **PASSOU** (nenhuma exceção; sem inserir ou alterar dados).
+
+A leitura atual do catálogo confirmou também que não há bucket configurado em `storage.buckets`. Isso é deliberado: o bucket privado e o fluxo de anexos foram reservados para a etapa de anexos, e nenhum bucket público foi criado.
+
+O Security Advisor atual não está limpo: permanece o aviso de proteção contra senhas vazadas e, após a Etapa 4, surgiram sete avisos genéricos para RPCs `SECURITY DEFINER` expostas a `authenticated`. Essas RPCs são necessárias para criar/administrar conversas sem conceder escrita direta nas tabelas; usam `search_path = ''`, validam usuário/participação e revogam execução de `PUBLIC`/`anon`. A decisão está documentada em `docs/ETAPA-4-COMUNICACAO.md` e deve ser revisada pela SQA. A execução de verificações SQL não remove nem substitui os avisos.
+
+## 8. Pendências e sequência das próximas etapas
+
+- **Etapa 2 — Autenticação:** concluir testes ponta a ponta de login válido/inválido, sessão, renovação, logout, recuperação de senha e bloqueio de perfis ausentes/inativos. O envio de e-mail continua condicionado ao SMTP disponível; para a demo, o fluxo administrativo de primeiro acesso pode usar link gerado e encaminhado manualmente.
+- **Etapa 3 — Administração:** validar cadastro, primeiro acesso, edição, papéis, status, proteção do último administrador e trilha de auditoria com contas fictícias.
+- **Etapa 4 — Comunicação:** implementar e testar conversas individuais e em grupo, participantes, mensagens persistidas, Realtime e busca, com isolamento por RLS.
+- **Etapa 5 — Anexos e qualidade:** criar somente bucket privado, validar magic bytes no servidor, impor tamanho/MIME, manter anexos bloqueados até scanner antimalware real e executar testes de segurança/regressão.
+- **Etapa 6 — Finalização:** testes E2E, revisão de acessibilidade/desempenho, documentação, fechamento responsável das Issues e aprovação antes de qualquer publicação em produção.
+- O bucket de anexos ainda não existe; isso é uma pendência intencional, não uma falha de configuração pública.
+- O aviso `auth_leaked_password_protection` permanece pendente no plano Free; registrar como risco aceito para a demo, com compensações e sem declarar resolvido.
+- Confirmar a exposição das tabelas necessárias na Data API do Supabase e as configurações de Auth antes do teste integrado.
 - Confirmar com TI/jurídico a região de dados, política de retenção, criptografia/backup, acesso formal e limites legais de notificação.
-- Confirmar a exposição explícita das tabelas necessárias na Data API do Supabase; desde 2026-10-30 tabelas novas em `public` não são automaticamente expostas por padrão.
 
 ## 9. Critério de encerramento
 
-A Etapa 1 entrega o modelo inicial e controles estruturais no banco. Não declara o produto pronto para produção. A próxima etapa só começa após aprovação explícita do responsável pelo projeto.
+A Etapa 1 entrega o modelo inicial e controles estruturais no banco. As verificações de catálogo e privilégios passaram, mas isso não declara o produto pronto para produção. O responsável autorizou a continuidade sequencial das próximas etapas nesta conversa; cada etapa continuará sujeita a critérios de aceite e validação antes de merge ou publicação.
