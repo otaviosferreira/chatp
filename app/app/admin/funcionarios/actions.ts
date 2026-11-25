@@ -66,6 +66,17 @@ export async function inviteEmployee(formData: FormData) {
   });
 
   if (inviteError || !invited.user) {
+    const providerCode = String(inviteError?.code ?? "");
+    const providerMessage = String(inviteError?.message ?? "").toLowerCase();
+    const providerStatus = Number(inviteError?.status ?? 0);
+
+    if (providerStatus === 429 || providerCode === "over_email_send_rate_limit") {
+      redirect("/app/admin/funcionarios?error=limite-email");
+    }
+    if (providerCode === "email_exists" || providerMessage.includes("already been registered") ||
+        providerMessage.includes("already exists")) {
+      redirect("/app/admin/funcionarios?error=email-existente");
+    }
     redirect("/app/admin/funcionarios?error=convite");
   }
 
