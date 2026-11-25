@@ -1,7 +1,8 @@
+import { cookies } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { inviteEmployee, updateEmployee } from "./actions";
+import { clearInviteLink, inviteEmployee, updateEmployee } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -10,16 +11,15 @@ type SearchParams = Promise<{ success?: string; error?: string }>;
 const messages: Record<string, string> = {
   nome: "Informe um nome válido.",
   dominio: "Use um e-mail do domínio corporativo autorizado.",
-  convite: "O provedor de e-mail recusou o convite. Verifique a configuração SMTP e consulte os registros de Auth do Supabase.",
-  "limite-email": "O limite de envio de e-mails foi atingido. Aguarde a liberação do provedor ou configure um SMTP próprio antes de tentar novamente.",
+  convite: "Não foi possível gerar o link de primeiro acesso. Consulte os registros de Auth do Supabase.",
   "email-existente": "Este endereço já possui uma conta no Supabase Auth. Verifique o diretório ou utilize outro endereço corporativo.",
-  perfil: "O convite não foi concluído porque o perfil não pôde ser criado.",
+  perfil: "O cadastro não foi concluído porque o perfil não pôde ser criado.",
   dados: "Confira os dados informados.",
   "propria-conta": "Não é permitido desativar ou rebaixar sua própria conta administrativa.",
   "nao-encontrado": "Funcionário não encontrado.",
   "ultimo-admin": "A operação bloquearia o último administrador ativo.",
   atualizacao: "Não foi possível atualizar o cadastro.",
-  config: "A URL pública do ChatApp não está configurada no ambiente. A TI deve definir NEXT_PUBLIC_SITE_URL antes de enviar convites.",
+  config: "A URL pública do ChatP não está configurada no ambiente. A TI deve definir NEXT_PUBLIC_SITE_URL.",
   secret: "A chave administrativa do Supabase ainda não está configurada na Vercel. A TI deve adicionar SUPABASE_SECRET_KEY como variável secreta do servidor.",
 };
 
@@ -38,12 +38,14 @@ export default async function EmployeesAdminPage({ searchParams }: { searchParam
     .select("id,full_name,email,department,role,status,created_at")
     .order("full_name", { ascending: true });
   const params = await searchParams;
+  const cookieStore = await cookies();
+  const inviteLink = cookieStore.get("chatp_admin_invite_link")?.value;
 
   return (
     <main className="app-shell">
       <header className="app-header">
         <div>
-          <div className="brand-mark"><span className="brand-symbol" aria-hidden="true">C</span> CALUNGA · ChatApp</div>
+          <div className="brand-mark"><span className="brand-symbol" aria-hidden="true">C</span> CALUNGA · ChatP</div>
           <p className="admin-header-subtitle">Administração de funcionários</p>
         </div>
         <Link className="secondary-link" href="/app">Voltar ao início</Link>
@@ -51,22 +53,35 @@ export default async function EmployeesAdminPage({ searchParams }: { searchParam
       <section className="admin-main">
         <div className="admin-heading">
           <div><span className="auth-eyebrow">Painel de TI</span><h1>Funcionários e acessos</h1>
-            <p className="muted">Convide, atualize permissões e bloqueie acessos sem apagar o histórico.</p></div>
+            <p className="muted">Cadastre funcionários, atualize permissões e bloqueie acessos sem apagar o histórico.</p></div>
           <span className="admin-count">{employees?.length ?? 0} cadastros</span>
         </div>
 
-        {params.success === "convite" && <p className="success-notice">Convite enviado. O funcionário deve abrir o e-mail e definir a senha para ativar o primeiro acesso.</p>}
+        {params.success === "link" && <p className="success-notice">Funcionário cadastrado. O link individual de primeiro acesso está disponível abaixo por tempo limitado.</p>}
         {params.success === "atualizado" && <p className="success-notice">Cadastro atualizado e alteração registrada na auditoria.</p>}
         {params.error && <p className="notice">{messages[params.error] || "Não foi possível concluir a operação."}</p>}
 
+        {inviteLink && (
+          <section className="admin-card" aria-labelledby="invite-link-title">
+            <h2 id="invite-link-title">Link de primeiro acesso</h2>
+            <p className="muted">Copie o link e encaminhe diretamente ao funcionário por um canal corporativo autorizado. Ele permite ativar a conta e definir uma senha. Não publique nem compartilhe em grupos.</p>
+            <p><a className="secondary-link" href={inviteLink} target="_blank" rel="noreferrer">Abrir link de primeiro acesso</a></p>
+            <label>Link individual<input readOnly value={inviteLink} onFocus={(event) => event.currentTarget.select()} /></label>
+            <form action={clearInviteLink}>
+              <button className="secondary-action" type="submit">Ocultar e descartar link desta tela</button>
+            </form>
+            <p className="admin-footnote">Por segurança, o link fica disponível nesta sessão administrativa por até 10 minutos. O prazo de validade do token é definido pelo Supabase Auth.</p>
+          </section>
+        )}
+
         <section className="admin-card">
-          <h2>Convidar funcionário</h2>
-          <p className="muted">O sistema envia um convite por e-mail. Nenhuma senha é criada ou compartilhada pela TI.</p>
+          <h2>Adicionar funcionário</h2>
+          <p className="muted">O Supabase cria a conta e gera um link individual de primeiro acesso. Nenhum e-mail é enviado e nenhuma senha é criada ou compartilhada pela TI.</p>
           <form action={inviteEmployee} className="admin-form">
             <label>Nome completo<input name="full_name" required minLength={2} maxLength={160} /></label>
             <label>E-mail corporativo<input name="email" type="email" required placeholder="nome@ulife.com.br" /></label>
             <label>Departamento<input name="department" maxLength={120} /></label>
-            <button className="primary-button admin-submit" type="submit">Enviar convite</button>
+            <button className="primary-button admin-submit" type="submit">Cadastrar e gerar link</button>
           </form>
         </section>
 
