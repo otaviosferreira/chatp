@@ -48,7 +48,7 @@ export default async function ConversationDetailPage({
   const memberIds = (members ?? []).map((member) => member.user_id);
   const { data: memberProfiles } = memberIds.length
     ? await supabase.from("profiles").select("id,full_name,email,department").in("id", memberIds)
-    : { data: [], error: null };
+    : { data: [] };
   const profileById = new Map((memberProfiles ?? []).map((item) => [item.id, item]));
 
   const otherNames = memberIds.filter((memberId) => memberId !== user.id)
@@ -66,7 +66,7 @@ export default async function ConversationDetailPage({
   const senderIds = [...new Set(orderedMessages.map((message) => message.sender_id))];
   const { data: senders } = senderIds.length
     ? await supabase.from("profiles").select("id,full_name").in("id", senderIds)
-    : { data: [], error: null };
+    : { data: [] };
   const senderNames = new Map((senders ?? []).map((item) => [item.id, item.full_name]));
   const initialMessages = orderedMessages.map((message) => ({
     ...message,
@@ -77,12 +77,12 @@ export default async function ConversationDetailPage({
     ? await supabase.from("message_receipts")
         .select("message_id,user_id,delivered_at,read_at")
         .in("message_id", messageIds)
-    : { data: [], error: null };
+    : { data: [] };
 
   const { data: employees } = conversation.kind === "group" && conversation.created_by === user.id
     ? await supabase.from("profiles").select("id,full_name,email")
         .eq("status", "active").not("id", "in", `(${memberIds.join(",")})`).order("full_name")
-    : { data: [], error: null };
+    : { data: [] };
 
   return (
     <main className="app-shell">
