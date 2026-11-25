@@ -40,7 +40,7 @@ function getPublicSiteUrl() {
   // Vercel provides the current deployment hostname (without protocol).
   // Prefer it over a manually configured URL, which may still point to localhost.
   const deploymentHost = process.env.VERCEL_URL?.trim();
-  if (deploymentHost) return `https://${deploymentHost.replace(/^https?:\\/\\//, "").replace(/\\/$/, "")}`;
+  if (deploymentHost) return `https://${deploymentHost}`;
 
   // Local development fallback only; never use localhost on a Vercel deployment.
   const configuredUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
