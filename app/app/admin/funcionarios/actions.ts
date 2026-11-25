@@ -37,12 +37,23 @@ function validEmail(email: string) {
 }
 
 function getPublicSiteUrl() {
-  // Vercel provides the current deployment hostname (without protocol).
-  // Prefer it over a manually configured URL, which may still point to localhost.
+  // Prefer the stable production domain on every Vercel deployment.
+  // VERCEL_URL is only the current deployment's temporary hostname.
+  const productionHost = process.env.VERCEL_PROJECT_PRODUCTION_URL?.trim();
   const deploymentHost = process.env.VERCEL_URL?.trim();
-  if (deploymentHost) return `https://${deploymentHost}`;
+  const host = productionHost || deploymentHost;
 
-  // Local development fallback only; never use localhost on a Vercel deployment.
+  if (host) {
+    try {
+      const parsed = new URL(host.includes("://") ? host : `https://${host}`);
+      if (["localhost", "127.0.0.1", "::1"].includes(parsed.hostname)) return null;
+      return parsed.origin;
+    } catch {
+      return null;
+    }
+  }
+
+  // Local development fallback only; reject localhost on hosted environments.
   const configuredUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
   if (!configuredUrl) return null;
 
@@ -53,6 +64,14 @@ function getPublicSiteUrl() {
   } catch {
     return null;
   }
+}
+
+function forcePublicRedirect(actionLink: string, siteUrl: string) {
+  // Supabase's generated action URL can inherit an old localhost redirect.
+  // Replace only redirect_to; keep the one-time token and verification URL intact.
+  const parsed = new URL(actionLink);
+  parsed.searchParams.set("redirect_to", `${siteUrl}/auth/confirm`);
+  return parsed.toString();
 }
 
 async function writeAudit(actorId: string, action: string, targetId: string, metadata: Record<string, string>) {
@@ -145,7 +164,7 @@ export async function inviteEmployee(formData: FormData) {
   await writeAudit(user.id, "employee.invited", generated.user.id, { email, department });
 
   // Link temporário fica em cookie HttpOnly, disponível apenas na área administrativa.
-  cookieStore.set(INVITE_COOKIE, generated.properties.action_link, {
+  cookieStore.set(INVITE_COOKIE, forcePublicRedirect(generated.properties.action_link, siteUrl), {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
@@ -203,7 +222,7 @@ export async function generatePasswordRecoveryLink(formData: FormData) {
     email: target.email,
   });
 
-  cookieStore.set(RECOVERY_COOKIE, generated.properties.action_link, {
+  cookieStore.set(RECOVERY_COOKIE, forcePublicRedirect(generated.properties.action_link, siteUrl), {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
