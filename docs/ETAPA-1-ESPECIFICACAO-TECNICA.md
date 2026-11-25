@@ -80,7 +80,7 @@ Autorização é baseada no registro de perfil no banco (não em `user_metadata`
 |---|---|
 | 7 tabelas esperadas criadas | PASSOU |
 | RLS habilitado nas 7 tabelas | PASSOU |
-| Supabase Security Advisor (consulta atual) | ATENÇÃO — permanece o alerta `auth_leaked_password_protection` (proteção contra senhas vazadas desativada no plano Free) |
+| Supabase Security Advisor (consulta em 25/11/2026 após Etapa 4) | ATENÇÃO — 1 alerta `auth_leaked_password_protection` e 7 avisos genéricos das RPCs `SECURITY DEFINER` intencionais da Etapa 4 |
 | Papel `authenticated` sem DELETE em `profiles` | PASSOU |
 | Papel `anon` sem SELECT em mensagens | PASSOU |
 | Papel `anon` sem executar checagem de TI | PASSOU |
@@ -104,7 +104,7 @@ Resultado da execução: **PASSOU** (nenhuma exceção; sem inserir ou alterar d
 
 A leitura atual do catálogo confirmou também que não há bucket configurado em `storage.buckets`. Isso é deliberado: o bucket privado e o fluxo de anexos foram reservados para a etapa de anexos, e nenhum bucket público foi criado.
 
-O Security Advisor atual não está limpo: o aviso de proteção contra senhas vazadas permanece pendente. A execução de verificações SQL não remove nem substitui esse aviso.
+O Security Advisor atual não está limpo: permanece o aviso de proteção contra senhas vazadas e, após a Etapa 4, surgiram sete avisos genéricos para RPCs `SECURITY DEFINER` expostas a `authenticated`. Essas RPCs são necessárias para criar/administrar conversas sem conceder escrita direta nas tabelas; usam `search_path = ''`, validam usuário/participação e revogam execução de `PUBLIC`/`anon`. A decisão está documentada em `docs/ETAPA-4-COMUNICACAO.md` e deve ser revisada pela SQA. A execução de verificações SQL não remove nem substitui os avisos.
 
 ## 8. Pendências e sequência das próximas etapas
 
