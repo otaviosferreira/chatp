@@ -10,7 +10,9 @@ type SearchParams = Promise<{ success?: string; error?: string }>;
 const messages: Record<string, string> = {
   nome: "Informe um nome válido.",
   dominio: "Use um e-mail do domínio corporativo autorizado.",
-  convite: "Não foi possível enviar o convite. Verifique se o e-mail já existe e a configuração de SMTP.",
+  convite: "O provedor de e-mail recusou o convite. Verifique a configuração SMTP e consulte os registros de Auth do Supabase.",
+  "limite-email": "O limite de envio de e-mails foi atingido. Aguarde a liberação do provedor ou configure um SMTP próprio antes de tentar novamente.",
+  "email-existente": "Este endereço já possui uma conta no Supabase Auth. Verifique o diretório ou utilize outro endereço corporativo.",
   perfil: "O convite não foi concluído porque o perfil não pôde ser criado.",
   dados: "Confira os dados informados.",
   "propria-conta": "Não é permitido desativar ou rebaixar sua própria conta administrativa.",
