@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { signOut } from "./actions";
 
@@ -35,7 +36,7 @@ export default async function AppHomePage() {
           <p><strong>E-mail:</strong> {profile.email}</p>
           <p><strong>Departamento:</strong> {profile.department || "Não informado"}</p>
           <p><strong>Perfil de acesso:</strong> {profile.role === "it_admin" ? "Tecnologia da Informação" : "Funcionário"}</p>
-          <p className="muted">A área de conversas será construída nas próximas etapas aprovadas do projeto.</p>
+          <div className="welcome-actions"><Link className="admin-entry-link" href="/app/conversas">Abrir conversas</Link>{profile.role === "it_admin" && <Link className="admin-entry-link" href="/app/admin/funcionarios">Administrar funcionários</Link>}</div>
           {profile.role === "it_admin" && <Link className="admin-entry-link" href="/app/admin/funcionarios">Abrir painel de administração de funcionários</Link>}
         </div>
       </section>
