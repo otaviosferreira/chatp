@@ -8,6 +8,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 
 const DOMAIN = (process.env.CORPORATE_EMAIL_DOMAIN || "ulife.com.br").toLowerCase().replace(/^@/, "");
 const INVITE_COOKIE = "chatp_admin_invite_link";
+const RECOVERY_COOKIE = "chatp_admin_recovery_link";
 
 async function requireItAdmin() {
   const supabase = await createClient();
@@ -120,6 +121,64 @@ export async function clearInviteLink() {
   await requireItAdmin();
   const cookieStore = await cookies();
   cookieStore.delete(INVITE_COOKIE);
+  revalidatePath("/app/admin/funcionarios");
+}
+
+export async function generatePasswordRecoveryLink(formData: FormData) {
+  const { user } = await requireItAdmin();
+  if (!process.env.SUPABASE_SECRET_KEY) redirect("/app/admin/funcionarios?error=secret");
+
+  const targetId = value(formData, "user_id");
+  if (!targetId) redirect("/app/admin/funcionarios?error=nao-encontrado");
+
+  const admin = createAdminClient();
+  const { data: target, error: targetError } = await admin
+    .from("profiles")
+    .select("id,email,status")
+    .eq("id", targetId)
+    .maybeSingle();
+
+  if (targetError || !target) redirect("/app/admin/funcionarios?error=nao-encontrado");
+  if (target.status !== "active") redirect("/app/admin/funcionarios?error=conta-desativada");
+
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+  if (!siteUrl) redirect("/app/admin/funcionarios?error=config");
+
+  const cookieStore = await cookies();
+  cookieStore.delete(RECOVERY_COOKIE);
+  const redirectUrl = siteUrl.endsWith("/") ? siteUrl.slice(0, -1) : siteUrl;
+
+  // generateLink retorna um link de recuperação sem depender de SMTP.
+  const { data: generated, error: recoveryError } = await admin.auth.admin.generateLink({
+    type: "recovery",
+    email: target.email,
+    options: { redirectTo: `${redirectUrl}/auth/confirm` },
+  });
+
+  if (recoveryError || !generated.properties?.action_link) {
+    redirect("/app/admin/funcionarios?error=recuperacao");
+  }
+
+  await writeAudit(user.id, "employee.password_recovery_link_generated", target.id, {
+    email: target.email,
+  });
+
+  cookieStore.set(RECOVERY_COOKIE, generated.properties.action_link, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    path: "/",
+    maxAge: 10 * 60,
+  });
+
+  revalidatePath("/app/admin/funcionarios");
+  redirect("/app/admin/funcionarios?success=recuperacao");
+}
+
+export async function clearRecoveryLink() {
+  await requireItAdmin();
+  const cookieStore = await cookies();
+  cookieStore.delete(RECOVERY_COOKIE);
   revalidatePath("/app/admin/funcionarios");
 }
 
