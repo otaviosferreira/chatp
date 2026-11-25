@@ -1,11 +1,13 @@
 "use server";
 
+import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 const DOMAIN = (process.env.CORPORATE_EMAIL_DOMAIN || "ulife.com.br").toLowerCase().replace(/^@/, "");
+const INVITE_COOKIE = "chatp_admin_invite_link";
 
 async function requireItAdmin() {
   const supabase = await createClient();
@@ -60,19 +62,21 @@ export async function inviteEmployee(formData: FormData) {
 
   const redirectUrl = siteUrl.endsWith("/") ? siteUrl.slice(0, -1) : siteUrl;
   const admin = createAdminClient();
-  const { data: invited, error: inviteError } = await admin.auth.admin.inviteUserByEmail(email, {
-    data: { full_name: fullName },
-    redirectTo: `${redirectUrl}/auth/confirm`,
+
+  // generateLink cria o usuário e retorna o link de ação sem disparar e-mail.
+  const { data: generated, error: inviteError } = await admin.auth.admin.generateLink({
+    type: "invite",
+    email,
+    options: {
+      data: { full_name: fullName },
+      redirectTo: `${redirectUrl}/auth/confirm`,
+    },
   });
 
-  if (inviteError || !invited.user) {
+  if (inviteError || !generated.user || !generated.properties?.action_link) {
     const providerCode = String(inviteError?.code ?? "");
     const providerMessage = String(inviteError?.message ?? "").toLowerCase();
-    const providerStatus = Number(inviteError?.status ?? 0);
 
-    if (providerStatus === 429 || providerCode === "over_email_send_rate_limit") {
-      redirect("/app/admin/funcionarios?error=limite-email");
-    }
     if (providerCode === "email_exists" || providerMessage.includes("already been registered") ||
         providerMessage.includes("already exists")) {
       redirect("/app/admin/funcionarios?error=email-existente");
@@ -81,7 +85,7 @@ export async function inviteEmployee(formData: FormData) {
   }
 
   const { error: profileError } = await admin.from("profiles").insert({
-    id: invited.user.id,
+    id: generated.user.id,
     full_name: fullName,
     email,
     department: department || null,
@@ -90,13 +94,31 @@ export async function inviteEmployee(formData: FormData) {
   });
 
   if (profileError) {
-    await admin.auth.admin.deleteUser(invited.user.id);
+    await admin.auth.admin.deleteUser(generated.user.id);
     redirect("/app/admin/funcionarios?error=perfil");
   }
 
-  await writeAudit(user.id, "employee.invited", invited.user.id, { email, department });
+  await writeAudit(user.id, "employee.invited", generated.user.id, { email, department });
+
+  // Link temporário fica em cookie HttpOnly, disponível apenas na área administrativa.
+  const cookieStore = await cookies();
+  cookieStore.set(INVITE_COOKIE, generated.properties.action_link, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    path: "/app/admin/funcionarios",
+    maxAge: 10 * 60,
+  });
+
   revalidatePath("/app/admin/funcionarios");
-  redirect("/app/admin/funcionarios?success=convite");
+  redirect("/app/admin/funcionarios?success=link");
+}
+
+export async function clearInviteLink() {
+  await requireItAdmin();
+  const cookieStore = await cookies();
+  cookieStore.delete(INVITE_COOKIE);
+  revalidatePath("/app/admin/funcionarios");
 }
 
 export async function updateEmployee(formData: FormData) {
