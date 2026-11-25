@@ -56,9 +56,10 @@ begin
   ) then raise exception 'FAIL: tabela pública sem RLS'; end if;
 
   if exists (
-    select 1 from pg_catalog.pg_tables t
-    where t.schemaname='public'
-      and pg_catalog.has_table_privilege('anon',format('public.%I',t.tablename),'SELECT,INSERT,UPDATE,DELETE')
+    select 1 from pg_catalog.pg_class c
+    join pg_catalog.pg_namespace n on n.oid=c.relnamespace
+    where n.nspname='public' and c.relkind in ('r','p')
+      and pg_catalog.has_table_privilege('anon',c.oid,'SELECT,INSERT,UPDATE,DELETE')
   ) then raise exception 'FAIL: anon possui privilégio direto em tabela pública'; end if;
 
   if pg_catalog.has_table_privilege('authenticated','public.profiles','INSERT,UPDATE,DELETE')
