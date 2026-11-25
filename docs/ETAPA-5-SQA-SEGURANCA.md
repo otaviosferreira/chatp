@@ -9,7 +9,7 @@
 
 - `supabase/tests/etapa_1_security_checks.sql`: PASSOU antes e depois da Etapa 4.
 - `supabase/tests/etapa_4_chat_checks.sql`: PASSOU com três identidades fictícias, cobrindo conversa direta idempotente, grupo, envio sob papel authenticated, recibos, isolamento de não membro, autorização de criador e transferência de titularidade. O teste encerra em ROLLBACK.
-- `supabase/tests/etapa_5_security_regression.sql`: valida RLS em todas as tabelas públicas, ausência de privilégios de anon, ausência de escrita direta em tabelas protegidas, schema privado, funções RPC, ausência de buckets públicos, proteção do último administrador e imutabilidade de auditoria. Usa uma identidade fictícia e reverte a transação.
+- `supabase/tests/etapa_5_security_regression.sql`: **PASSOU** no Supabase de desenvolvimento. Validou RLS em todas as tabelas públicas, ausência de privilégios de anon, ausência de escrita direta em tabelas protegidas, schema privado, funções RPC, ausência de buckets públicos, proteção do último administrador e imutabilidade de auditoria. Usou uma identidade fictícia e reverteu a transação.
 
 ## Pendências de SQA
 
