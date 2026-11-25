@@ -17,6 +17,7 @@
 - Histórico inicial paginado por janela de 50 mensagens na conversa.
 - Contagem de não lidas para recibos presentes na janela de mensagens carregada na lista.
 - Notificações do navegador somente após ação explícita do usuário para conceder permissão.
+- Painel administrativo com navegação para Funcionários, Auditoria, Registros e Configurações; auditoria com filtros por período, usuário e ação e paginação de 25 eventos.
 
 ## Segurança e banco
 
@@ -37,6 +38,9 @@ Nenhum bucket de anexos foi criado nesta etapa. Anexos permanecem indisponíveis
 - `app/app/conversas/actions.ts`: ações de servidor com validação da sessão.
 - `app/app/conversas/[id]/page.tsx`: detalhes, participantes e histórico.
 - `app/app/conversas/[id]/chat-thread.tsx`: assinatura Realtime, envio e recibos.
+- `app/app/admin/auditoria/page.tsx`: filtros por data, usuário e evento, com paginação.
+- `app/app/admin/registros/page.tsx`: últimos eventos da aplicação e acesso ao painel de logs técnicos da Vercel.
+- `app/app/admin/configuracoes/page.tsx`: visão somente leitura de configuração, sem revelar segredos.
 - `supabase/tests/etapa_4_chat_checks.sql`: teste transacional com três identidades fictícias; todas as alterações são revertidas.
 
 ## Evidência de banco
