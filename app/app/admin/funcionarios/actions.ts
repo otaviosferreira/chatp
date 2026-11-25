@@ -36,6 +36,25 @@ function validEmail(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && email.toLowerCase().endsWith(`@${DOMAIN}`);
 }
 
+function getPublicSiteUrl() {
+  // Vercel provides the current deployment hostname (without protocol).
+  // Prefer it over a manually configured URL, which may still point to localhost.
+  const deploymentHost = process.env.VERCEL_URL?.trim();
+  if (deploymentHost) return `https://${deploymentHost.replace(/^https?:\\/\\//, "").replace(/\\/$/, "")}`;
+
+  // Local development fallback only; never use localhost on a Vercel deployment.
+  const configuredUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+  if (!configuredUrl) return null;
+
+  try {
+    const parsed = new URL(configuredUrl);
+    if (process.env.VERCEL && ["localhost", "127.0.0.1", "::1"].includes(parsed.hostname)) return null;
+    return parsed.origin;
+  } catch {
+    return null;
+  }
+}
+
 async function writeAudit(actorId: string, action: string, targetId: string, metadata: Record<string, string>) {
   const admin = createAdminClient();
   const { error } = await admin.from("audit_logs").insert({
@@ -58,13 +77,13 @@ export async function inviteEmployee(formData: FormData) {
   if (fullName.length < 2 || fullName.length > 160) redirect("/app/admin/funcionarios?error=nome");
   if (!validEmail(email)) redirect("/app/admin/funcionarios?error=dominio");
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+  const siteUrl = getPublicSiteUrl();
   if (!siteUrl) redirect("/app/admin/funcionarios?error=config");
 
   const cookieStore = await cookies();
   cookieStore.delete(INVITE_COOKIE);
 
-  const redirectUrl = siteUrl.endsWith("/") ? siteUrl.slice(0, -1) : siteUrl;
+  const redirectUrl = siteUrl;
   const admin = createAdminClient();
 
   // generateLink cria o usuário e retorna o link de ação sem disparar e-mail.
@@ -162,12 +181,12 @@ export async function generatePasswordRecoveryLink(formData: FormData) {
   if (targetError || !target) redirect("/app/admin/funcionarios?error=nao-encontrado");
   if (target.status !== "active") redirect("/app/admin/funcionarios?error=conta-desativada");
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+  const siteUrl = getPublicSiteUrl();
   if (!siteUrl) redirect("/app/admin/funcionarios?error=config");
 
   const cookieStore = await cookies();
   cookieStore.delete(RECOVERY_COOKIE);
-  const redirectUrl = siteUrl.endsWith("/") ? siteUrl.slice(0, -1) : siteUrl;
+  const redirectUrl = siteUrl;
 
   // generateLink retorna um link de recuperação sem depender de SMTP.
   const { data: generated, error: recoveryError } = await admin.auth.admin.generateLink({
