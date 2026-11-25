@@ -1,9 +1,9 @@
-# ChatApp Calunga
+# ChatP — Comunicação Corporativa Privada da Calunga
 
 Sistema de comunicação corporativa interna da Calunga.
 
 ## Estado inicial
-O repositório foi inicializado para a execução linear do projeto. A primeira entrega é a Etapa 1: especificação técnica, modelo de dados e controles de segurança.
+O repositório `otaviosferreira/chatp` foi inicializado para a execução linear do projeto. A primeira entrega é a Etapa 1: especificação técnica, modelo de dados e controles de segurança.
 
 ## Regras essenciais
 - Acesso exclusivo de funcionários cadastrados pela TI; sem auto-cadastro.
