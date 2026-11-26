@@ -13,6 +13,22 @@ const errorMessages: Record<string, string> = {
   grupo: "Informe um nome e selecione pelo menos um participante ativo.",
 };
 
+function highlightMatch(value: string, term: string) {
+  if (!term) return value;
+  const escaped = term.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\const errorMessages: Record<string, string> = {
+  destinatario: "Selecione um funcionário para iniciar a conversa.",
+  conversa: "Não foi possível iniciar a conversa. Confira se o funcionário está ativo.",
+  grupo: "Informe um nome e selecione pelo menos um participante ativo.",
+};
+");
+  const parts = value.split(new RegExp(`(${escaped})`, "ig"));
+  return parts.map((part, index) =>
+    part.toLocaleLowerCase() === term.toLocaleLowerCase()
+      ? <mark key={index}>{part}</mark>
+      : part
+  );
+}
+
 export default async function ConversationsPage({ searchParams }: { searchParams: SearchParams }) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -99,13 +115,29 @@ export default async function ConversationsPage({ searchParams }: { searchParams
     return new Date(bDate).getTime() - new Date(aDate).getTime();
   });
 
-  const { data: searchResults, error: searchError } = query.length >= 2
-    ? await supabase.from("messages")
-        .select("id,conversation_id,sender_id,body,created_at")
-        .textSearch("body", query, { config: "portuguese", type: "websearch" })
-        .order("created_at", { ascending: false })
-        .limit(30)
-    : { data: [], error: null };
+  const safeSearchTerm = query.replace(/[^a-zA-Z0-9À-ÿ@.\\-\\s]/g, " ").trim();
+  const [{ data: searchResults, error: searchError }, { data: searchEmployees }, { data: searchGroups }] = query.length >= 2
+    ? await Promise.all([
+        supabase.from("messages")
+          .select("id,conversation_id,sender_id,body,created_at")
+          .textSearch("body", query, { config: "portuguese", type: "websearch" })
+          .order("created_at", { ascending: false })
+          .limit(30),
+        supabase.from("profiles")
+          .select("id,full_name,email,department")
+          .eq("status", "active")
+          .neq("id", user.id)
+          .or(`full_name.ilike.%${safeSearchTerm}%,email.ilike.%${safeSearchTerm}%,department.ilike.%${safeSearchTerm}%`)
+          .order("full_name", { ascending: true })
+          .limit(20),
+        supabase.from("conversations")
+          .select("id,title,created_at")
+          .eq("kind", "group")
+          .ilike("title", `%${safeSearchTerm}%`)
+          .order("created_at", { ascending: false })
+          .limit(20),
+      ])
+    : [{ data: [], error: null }, { data: [], error: null }, { data: [], error: null }];
 
   const titleById = new Map(conversationCards.map((item) => [item.id, item.displayTitle]));
 
@@ -140,15 +172,37 @@ export default async function ConversationsPage({ searchParams }: { searchParams
           {query.length >= 2 && (
             <div className="chat-search-results">
               <h3>Resultados para “{query}”</h3>
-              {searchError && <p className="notice">Não foi possível realizar a pesquisa.</p>}
-              {!searchError && (searchResults ?? []).length === 0 && <p className="muted">Nenhuma mensagem encontrada nas conversas acessíveis.</p>}
-              {(searchResults ?? []).map((message) => (
-                <Link className="chat-search-result" href={`/app/conversas/${message.conversation_id}`} key={message.id}>
-                  <strong>{titleById.get(message.conversation_id) || "Conversa"}</strong>
-                  <span>{message.body}</span>
-                  <small>{new Date(message.created_at).toLocaleString("pt-BR")}</small>
-                </Link>
-              ))}
+              {searchError && <p className="notice">Não foi possível pesquisar mensagens.</p>}
+              <section>
+                <h3>Funcionários ({searchEmployees?.length ?? 0})</h3>
+                {(searchEmployees ?? []).map((employee) => (
+                  <form action={startDirectConversation} key={employee.id} className="employee-chat-row">
+                    <input type="hidden" name="other_user_id" value={employee.id} />
+                    <span><strong>{highlightMatch(employee.full_name, query)}</strong><small>{employee.department || employee.email}</small></span>
+                    <button className="secondary-action" type="submit">Conversar</button>
+                  </form>
+                ))}
+              </section>
+              <section>
+                <h3>Grupos ({searchGroups?.length ?? 0})</h3>
+                {(searchGroups ?? []).map((group) => (
+                  <Link className="chat-search-result" href={`/app/conversas/${group.id}`} key={group.id}>
+                    <strong>{highlightMatch(group.title || "Grupo sem nome", query)}</strong>
+                    <small>Grupo · {new Date(group.created_at).toLocaleDateString("pt-BR")}</small>
+                  </Link>
+                ))}
+              </section>
+              <section>
+                <h3>Mensagens ({searchResults?.length ?? 0})</h3>
+                {!searchError && (searchResults ?? []).length === 0 && <p className="muted">Nenhuma mensagem encontrada nas conversas acessíveis.</p>}
+                {(searchResults ?? []).map((message) => (
+                  <Link className="chat-search-result" href={`/app/conversas/${message.conversation_id}`} key={message.id}>
+                    <strong>{titleById.get(message.conversation_id) || "Conversa"}</strong>
+                    <span>{highlightMatch(message.body, query)}</span>
+                    <small>{new Date(message.created_at).toLocaleString("pt-BR")}</small>
+                  </Link>
+                ))}
+              </section>
             </div>
           )}
         </section>
