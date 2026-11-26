@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createGroupConversation, startDirectConversation } from "./actions";
@@ -13,15 +14,22 @@ const errorMessages: Record<string, string> = {
   grupo: "Informe um nome e selecione pelo menos um participante ativo.",
 };
 
-function highlightMatch(value: string, term: string) {
+function highlightMatch(value: string, term: string): ReactNode {
   if (!term) return value;
-  const escaped = term.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\\\$&");
-  const parts = value.split(new RegExp(`(${escaped})`, "ig"));
-  return parts.map((part, index) =>
-    part.toLocaleLowerCase() === term.toLocaleLowerCase()
-      ? <mark key={index}>{part}</mark>
-      : part
-  );
+  const source = value.toLocaleLowerCase();
+  const needle = term.toLocaleLowerCase();
+  const parts: ReactNode[] = [];
+  let cursor = 0;
+  let match = source.indexOf(needle);
+  while (match !== -1) {
+    if (match > cursor) parts.push(value.slice(cursor, match));
+    parts.push(<mark key={match}>{value.slice(match, match + term.length)}</mark>);
+    cursor = match + term.length;
+    match = source.indexOf(needle, cursor);
+  }
+  if (cursor === 0) return value;
+  if (cursor < value.length) parts.push(value.slice(cursor));
+  return parts;
 }
 
 export default async function ConversationsPage({ searchParams }: { searchParams: SearchParams }) {
