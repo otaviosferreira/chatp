@@ -24,6 +24,10 @@ export async function setInitialPassword(formData: FormData) {
       app_metadata: { ...user.app_metadata, force_password_change: false },
     });
     if (metadataError) redirect("/auth/definir-senha?error=atualizacao");
+
+    // Refresh the session so the JWT immediately reflects the cleared onboarding flag.
+    const { error: refreshError } = await supabase.auth.refreshSession();
+    if (refreshError) redirect("/auth/definir-senha?error=atualizacao");
   }
 
   redirect("/app");
