@@ -29,7 +29,7 @@ As PRs permanecem abertas e sem merge. As 70 Issues do plano original continuam 
 
 - Etapa 2: [Preview](https://chatp-gzji4t246-otavioferreira-5984s-projects.vercel.app) — READY.
 - Etapa 3: [Preview](https://chatp-qtxrgurx7-otavioferreira-5984s-projects.vercel.app) — READY.
-- Etapa 4: novo Preview da branch `feat/etapa-4-comunicacao` em atualização após integração da Etapa 3, paginação do histórico e pesquisa categorizada. Aguardar build READY para compartilhar URL final.
+- Etapa 4: [Preview READY](https://chatp-nd641f3yi-otavioferreira-5984s-projects.vercel.app) — commit `0a578a1`; build lint, TypeScript e Next.js concluído.
 
 O Preview da Etapa 4 não tem a variável secreta `SUPABASE_SECRET_KEY`, pois ela está vinculada apenas à branch da Etapa 3. O login comum e a área de comunicação não dependem dessa chave. Ações administrativas de escrita e a finalização do primeiro acesso temporário ainda dependem da API Admin e devem ser testadas no Preview da Etapa 3 até a variável ser configurada de forma segura também para a branch 4. Nenhum segredo foi ampliado para Production.
 
