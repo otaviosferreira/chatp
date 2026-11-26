@@ -24,17 +24,21 @@ export function ChatThread({
   currentUserId,
   initialMessages,
   initialReceipts,
+  hasMoreInitialMessages,
   sendMessage,
 }: {
   conversationId: string;
   currentUserId: string;
   initialMessages: Message[];
   initialReceipts: Receipt[];
+  hasMoreInitialMessages: boolean;
   sendMessage: (formData: FormData) => Promise<void>;
 }) {
   const supabase = useMemo(() => createClient(), []);
   const [messages, setMessages] = useState(initialMessages);
   const [receipts, setReceipts] = useState(initialReceipts);
+  const [hasMore, setHasMore] = useState(hasMoreInitialMessages);
+  const [loadingOlder, setLoadingOlder] = useState(false);
   const [notificationState, setNotificationState] = useState("Notificações desativadas");
   const listEnd = useRef<HTMLDivElement>(null);
 
@@ -59,7 +63,8 @@ export function ChatThread({
           await supabase.rpc("mark_conversation_delivered", { p_conversation_id: conversationId });
           await supabase.rpc("mark_conversation_read", { p_conversation_id: conversationId });
           if (typeof Notification !== "undefined" && Notification.permission === "granted") {
-            new Notification("Nova mensagem no ChatP", { body: incoming.body.slice(0, 140) });
+            // Do not expose private message content in operating-system notifications.
+            new Notification("Nova mensagem no ChatP", { body: "Você recebeu uma nova mensagem." });
           }
         }
       })
@@ -90,6 +95,44 @@ export function ChatThread({
     listEnd.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, [messages.length]);
 
+  async function loadOlderMessages() {
+    if (!hasMore || loadingOlder || messages.length === 0) return;
+    setLoadingOlder(true);
+    try {
+      const oldest = messages[0];
+      const { data: rows, error } = await supabase
+        .from("messages")
+        .select("id,conversation_id,sender_id,body,created_at")
+        .eq("conversation_id", conversationId)
+        .or(`created_at.lt.${oldest.created_at},and(created_at.eq.${oldest.created_at},id.lt.${oldest.id})`)
+        .order("created_at", { ascending: false })
+        .order("id", { ascending: false })
+        .limit(50);
+      if (error) throw error;
+
+      const olderRows = rows ?? [];
+      const senderIds = [...new Set(olderRows.map((row) => row.sender_id))];
+      const { data: senders } = senderIds.length
+        ? await supabase.from("profiles").select("id,full_name").in("id", senderIds)
+        : { data: [] };
+      const names = new Map((senders ?? []).map((sender) => [sender.id, sender.full_name]));
+      const olderMessages: Message[] = olderRows.reverse().map((row) => ({
+        ...row,
+        sender_name: names.get(row.sender_id) || "Funcionário",
+      }));
+
+      setMessages((current) => {
+        const existing = new Set(current.map((message) => message.id));
+        return [...olderMessages.filter((message) => !existing.has(message.id)), ...current];
+      });
+      setHasMore(olderRows.length === 50);
+    } catch {
+      setNotificationState("Não foi possível carregar mensagens anteriores.");
+    } finally {
+      setLoadingOlder(false);
+    }
+  }
+
   async function enableNotifications() {
     if (typeof Notification === "undefined") {
       setNotificationState("Este navegador não oferece notificações.");
@@ -107,6 +150,11 @@ export function ChatThread({
       </div>
 
       <div className="message-list" aria-live="polite" aria-relevant="additions">
+        {hasMore && (
+          <button className="secondary-action" type="button" onClick={loadOlderMessages} disabled={loadingOlder}>
+            {loadingOlder ? "Carregando..." : "Carregar mensagens anteriores"}
+          </button>
+        )}
         {messages.map((message) => {
           const own = message.sender_id === currentUserId;
           const messageReceipts = receipts.filter((receipt) => receipt.message_id === message.id);
