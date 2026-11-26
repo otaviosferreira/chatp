@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
 import { signOut } from "./actions";
 
 export const dynamic = "force-dynamic";
@@ -12,11 +11,8 @@ export default async function AppHomePage() {
 
   if (userError || !user) redirect("/login");
 
-  // Defense in depth: never let a temporary-password account reach the app home.
-  const admin = createAdminClient();
-  const { data: authRecord, error: authRecordError } = await admin.auth.admin.getUserById(user.id);
-  if (authRecordError || !authRecord.user) redirect("/login");
-  if (authRecord.user.app_metadata?.force_password_change === true) {
+  // getUser() consulta o Auth; app_metadata não é editável pelo próprio funcionário.
+  if (user.app_metadata?.force_password_change === true) {
     redirect("/auth/definir-senha?mode=first");
   }
 
