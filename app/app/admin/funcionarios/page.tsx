@@ -52,7 +52,12 @@ export default async function EmployeesAdminPage({ searchParams }: { searchParam
           <div className="brand-mark"><span className="brand-symbol" aria-hidden="true">C</span> CALUNGA · ChatP</div>
           <p className="admin-header-subtitle">Administração de funcionários</p>
         </div>
-        <Link className="secondary-link" href="/app">Voltar ao início</Link>
+        <nav className="admin-nav" aria-label="Navegação administrativa">
+          <Link href="/app/admin/funcionarios" aria-current="page">Funcionários</Link>
+          <Link href="/app/admin/auditoria">Auditoria</Link>
+          <Link href="/app/admin/configuracoes">Configurações</Link>
+          <Link href="/app">Início</Link>
+        </nav>
       </header>
       <section className="admin-main">
         <div className="admin-heading">
