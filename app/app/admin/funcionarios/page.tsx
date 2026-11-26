@@ -2,18 +2,18 @@ import { cookies } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { clearInviteLink, clearRecoveryLink, generatePasswordRecoveryLink, inviteEmployee, updateEmployee } from "./actions";
+import { clearRecoveryLink, generatePasswordRecoveryLink, inviteEmployee, updateEmployee } from "./actions";
 import { InviteLinkActions } from "./invite-link-actions";
 import { AdminNavigation } from "../admin-navigation";
 
 export const dynamic = "force-dynamic";
-
 type SearchParams = Promise<{ success?: string; error?: string }>;
 
 const messages: Record<string, string> = {
   nome: "Informe um nome válido.",
   dominio: "Use um e-mail do domínio corporativo autorizado.",
-  convite: "Não foi possível gerar o link de primeiro acesso. Consulte os registros de Auth do Supabase.",
+  convite: "Não foi possível criar a conta inicial. Consulte os registros de Auth do Supabase.",
+  credencial: "A conta foi criada, mas não foi possível definir a senha temporária. Verifique o Supabase Auth.",
   recuperacao: "Não foi possível gerar o link de recuperação. Verifique o cadastro e os registros de Auth.",
   "conta-desativada": "Não é possível gerar recuperação para uma conta desativada. Reative o acesso primeiro.",
   "email-existente": "Este endereço já possui uma conta no Supabase Auth. Verifique o diretório ou utilize outro endereço corporativo.",
@@ -23,7 +23,7 @@ const messages: Record<string, string> = {
   "nao-encontrado": "Funcionário não encontrado.",
   "ultimo-admin": "A operação bloquearia o último administrador ativo.",
   atualizacao: "Não foi possível atualizar o cadastro.",
-  config: "A URL pública do ChatP não está configurada no ambiente. A TI deve definir NEXT_PUBLIC_SITE_URL.",
+  config: "Não foi possível identificar a URL pública do ChatP.",
   secret: "A chave administrativa do Supabase ainda não está configurada na Vercel. A TI deve adicionar SUPABASE_SECRET_KEY como variável secreta do servidor.",
 };
 
@@ -31,39 +31,33 @@ export default async function EmployeesAdminPage({ searchParams }: { searchParam
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
-
-  const { data: currentProfile } = await supabase.from("profiles")
-    .select("role,status").eq("id", user.id).maybeSingle();
-  if (!currentProfile || currentProfile.status !== "active" || currentProfile.role !== "it_admin") {
-    redirect("/app?error=forbidden");
-  }
+  const { data: currentProfile } = await supabase.from("profiles").select("role,status").eq("id", user.id).maybeSingle();
+  if (!currentProfile || currentProfile.status !== "active" || currentProfile.role !== "it_admin") redirect("/app?error=forbidden");
 
   const { data: employees, error } = await supabase.from("profiles")
-    .select("id,full_name,email,department,role,status,created_at")
-    .order("full_name", { ascending: true });
+    .select("id,full_name,email,department,role,status,created_at").order("full_name", { ascending: true });
   const params = await searchParams;
   const cookieStore = await cookies();
-  const inviteLink = cookieStore.get("chatp_admin_invite_link")?.value;
   const recoveryLink = cookieStore.get("chatp_admin_recovery_link")?.value;
 
   return (
     <main className="app-shell">
       <header className="app-header">
-        <div>
-          <div className="brand-mark"><span className="brand-symbol" aria-hidden="true">C</span> CALUNGA · ChatP</div>
-          <p className="admin-header-subtitle">Administração de funcionários</p>
-        </div>
-        <Link className="secondary-link" href="/app">Voltar ao início</Link>
+        <div><div className="brand-mark"><span className="brand-symbol" aria-hidden="true">C</span> CALUNGA · ChatP</div><p className="admin-header-subtitle">Administração de funcionários</p></div>
+        <nav className="admin-nav" aria-label="Navegação administrativa">
+          <Link href="/app/admin/funcionarios" aria-current="page">Funcionários</Link>
+          <Link href="/app/admin/auditoria">Auditoria</Link>
+          <Link href="/app/admin/configuracoes">Configurações</Link>
+          <Link href="/app">Início</Link>
+        </nav>
       </header>
       <section className="admin-main">
         <AdminNavigation active="funcionarios" />
         <div className="admin-heading">
-          <div><span className="auth-eyebrow">Painel de TI</span><h1>Funcionários e acessos</h1>
-            <p className="muted">Cadastre funcionários, atualize permissões e bloqueie acessos sem apagar o histórico.</p></div>
+          <div><span className="auth-eyebrow">Painel de TI</span><h1>Funcionários e acessos</h1><p className="muted">Cadastre funcionários, atualize permissões e bloqueie acessos sem apagar o histórico.</p></div>
           <span className="admin-count">{employees?.length ?? 0} cadastros</span>
         </div>
-
-        {params.success === "link" && <p className="success-notice">Funcionário cadastrado. O link individual de primeiro acesso está disponível abaixo por tempo limitado.</p>}
+        {params.success === "senha-temporaria" && <p className="success-notice">Funcionário cadastrado! Primeiro acesso: use o e-mail cadastrado e a senha temporária <strong>123456</strong>. O sistema exigirá a criação de uma senha pessoal antes de liberar o ChatP.</p>}
         {params.success === "atualizado" && <p className="success-notice">Cadastro atualizado e alteração registrada na auditoria.</p>}
         {params.success === "recuperacao" && <p className="success-notice">Link de recuperação gerado. Encaminhe-o diretamente ao funcionário por um canal corporativo autorizado.</p>}
         {params.error && <p className="notice">{messages[params.error] || "Não foi possível concluir a operação."}</p>}
@@ -71,38 +65,24 @@ export default async function EmployeesAdminPage({ searchParams }: { searchParam
         {recoveryLink && (
           <section className="admin-card" aria-labelledby="recovery-link-title">
             <h2 id="recovery-link-title">Link de recuperação de senha</h2>
-            <p className="muted">Encaminhe individualmente ao funcionário por um canal corporativo autorizado. O link permite definir uma nova senha e não deve ser publicado nem compartilhado em grupos.</p>
+            <p className="muted">Encaminhe individualmente ao funcionário por um canal corporativo autorizado.</p>
             <p><a className="secondary-link" href={recoveryLink} target="_blank" rel="noreferrer">Abrir link de recuperação</a></p>
             <InviteLinkActions inviteLink={recoveryLink} purpose="password-recovery" />
-            <form action={clearRecoveryLink}>
-              <button className="secondary-action" type="submit">Ocultar e descartar link desta tela</button>
-            </form>
+            <form action={clearRecoveryLink}><button className="secondary-action" type="submit">Ocultar e descartar link desta tela</button></form>
             <p className="admin-footnote">O link fica disponível nesta sessão administrativa por até 10 minutos. A validade do token é controlada pelo Supabase Auth.</p>
-          </section>
-        )}
-
-        {inviteLink && (
-          <section className="admin-card" aria-labelledby="invite-link-title">
-            <h2 id="invite-link-title">Link de primeiro acesso</h2>
-            <p className="muted">Copie o link e encaminhe diretamente ao funcionário por um canal corporativo autorizado. Ele permite ativar a conta e definir uma senha. Não publique nem compartilhe em grupos.</p>
-            <p><a className="secondary-link" href={inviteLink} target="_blank" rel="noreferrer">Abrir link de primeiro acesso</a></p>
-            <InviteLinkActions inviteLink={inviteLink} />
-            <form action={clearInviteLink}>
-              <button className="secondary-action" type="submit">Ocultar e descartar link desta tela</button>
-            </form>
-            <p className="admin-footnote">Por segurança, o link fica disponível nesta sessão administrativa por até 10 minutos. O prazo de validade do token é definido pelo Supabase Auth.</p>
           </section>
         )}
 
         <section className="admin-card">
           <h2>Adicionar funcionário</h2>
-          <p className="muted">O Supabase cria a conta e gera um link individual de primeiro acesso. Nenhum e-mail é enviado e nenhuma senha é criada ou compartilhada pela TI.</p>
+          <p className="muted">A conta será criada com uma senha temporária. No primeiro login, o funcionário será obrigado a cadastrar sua própria senha. Nenhum e-mail é enviado.</p>
           <form action={inviteEmployee} className="admin-form">
             <label>Nome completo<input name="full_name" required minLength={2} maxLength={160} /></label>
             <label>E-mail corporativo<input name="email" type="email" required placeholder="nome@ulife.com.br" /></label>
             <label>Departamento<input name="department" maxLength={120} /></label>
-            <button className="primary-button admin-submit" type="submit">Cadastrar e gerar link</button>
+            <button className="primary-button admin-submit" type="submit">Cadastrar funcionário</button>
           </form>
+          <p className="admin-footnote">Senha temporária da demo: <strong>123456</strong>. Compartilhe-a somente com o funcionário cadastrado. Não reutilize este fluxo em produção.</p>
         </section>
 
         <section className="admin-card">
@@ -112,18 +92,11 @@ export default async function EmployeesAdminPage({ searchParams }: { searchParam
               {(employees ?? []).map((employee) => (
                 <form action={updateEmployee} className="employee-row" key={employee.id}>
                   <input type="hidden" name="user_id" value={employee.id} />
-                  <div className="employee-identity">
-                    <strong>{employee.full_name}</strong><span>{employee.email}</span>
-                    <small>{employee.status === "active" ? "Acesso ativo" : "Acesso bloqueado"}</small>
-                  </div>
+                  <div className="employee-identity"><strong>{employee.full_name}</strong><span>{employee.email}</span><small>{employee.status === "active" ? "Acesso ativo" : "Acesso bloqueado"}</small></div>
                   <label>Nome<input name="full_name" defaultValue={employee.full_name} required minLength={2} maxLength={160} /></label>
                   <label>Departamento<input name="department" defaultValue={employee.department ?? ""} maxLength={120} /></label>
-                  <label>Perfil<select name="role" defaultValue={employee.role}>
-                    <option value="employee">Funcionário</option><option value="it_admin">Administrador de TI</option>
-                  </select></label>
-                  <label>Status<select name="status" defaultValue={employee.status}>
-                    <option value="active">Ativo</option><option value="disabled">Desativado</option>
-                  </select></label>
+                  <label>Perfil<select name="role" defaultValue={employee.role}><option value="employee">Funcionário</option><option value="it_admin">Administrador de TI</option></select></label>
+                  <label>Status<select name="status" defaultValue={employee.status}><option value="active">Ativo</option><option value="disabled">Desativado</option></select></label>
                   <div className="employee-actions"><button className="secondary-action" type="submit">Salvar alterações</button>{employee.status === "active" && <button className="secondary-action" type="submit" formAction={generatePasswordRecoveryLink}>Gerar link de recuperação</button>}</div>
                 </form>
               ))}
