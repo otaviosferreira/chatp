@@ -91,9 +91,9 @@ Os controles estruturais do banco e a configuração visual de signup foram veri
 ### Entregas na branch
 - Painel de funcionários protegido no servidor por sessão válida, perfil ativo e papel `it_admin`.
 - Cadastro administrativo via Supabase Auth Admin API (`generateLink`, tipo `invite`), validação de domínio corporativo (`CORPORATE_EMAIL_DOMAIN`, padrão `ulife.com.br`) e criação/atualização do perfil pelo UUID Auth.
-- Link individual de convite apresentado somente na sessão administrativa; sem senha compartilhada e sem envio de e-mail pelo código de convite.
+- Para a DEMO, o cadastro define a senha temporária `123456`, confirma o e-mail e marca `app_metadata.force_password_change=true`; o login e a página inicial consultam o registro Auth autoritativo e obrigam a criação de senha pessoal. Esse mecanismo é inseguro para produção e deve ser substituído antes do uso real.
 - Callback `/auth/confirm` compatível com PKCE (`code` + `exchangeCodeForSession`) e OTP `token_hash`.
-- Primeiro acesso e recuperação permitem definir senha pessoal de pelo menos 12 caracteres.
+- Primeiro acesso com senha temporária e recuperação permitem definir senha pessoal de pelo menos 12 caracteres; a flag de primeiro acesso é limpa e a sessão é atualizada.
 - Recuperação self-service em `/login/recuperar-senha`, usando `resetPasswordForEmail`; a resposta é genérica para evitar enumeração de contas.
 - A geração administrativa de link de recuperação permanece disponível como procedimento assistido/fallback.
 - Edição de nome/departamento, papel `employee/it_admin` e status `active/disabled`.
