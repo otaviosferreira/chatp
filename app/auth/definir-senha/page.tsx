@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
 import { setInitialPassword } from "./actions";
 
 export const dynamic = "force-dynamic";
@@ -14,11 +13,8 @@ export default async function SetInitialPasswordPage({ searchParams }: { searchP
   const isRecovery = params.mode === "recovery";
   const isInvite = params.mode === "invite";
 
-  const admin = createAdminClient();
-  const { data: authRecord, error: authRecordError } = await admin.auth.admin.getUserById(user.id);
-  if (authRecordError || !authRecord.user) redirect("/login");
-
-  const isFirst = authRecord.user.app_metadata?.force_password_change === true;
+  // getUser() retorna o registro atualizado do Auth e sua app_metadata confiável.
+  const isFirst = user.app_metadata?.force_password_change === true;
   if (!isFirst && !isRecovery && !isInvite) redirect("/app");
 
   const isOnboarding = isFirst || isInvite;
