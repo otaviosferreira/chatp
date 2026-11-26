@@ -13,10 +13,10 @@
 - Atualização em tempo real com Supabase Realtime / Postgres Changes.
 - Recibos individuais de entrega e leitura.
 - Adicionar/remover participantes pelo criador do grupo e transferência de titularidade quando o criador sai.
-- Busca textual em português restrita às mensagens que o usuário pode consultar.
-- Histórico inicial paginado por janela de 50 mensagens na conversa.
+- Pesquisa em português de funcionários, grupos e mensagens, limitada aos dados que o usuário pode consultar, com destaque do termo.
+- Histórico de mensagens com carregamento progressivo de 50 itens por cursor estável (`created_at` + `id`), sem duplicatas.
 - Contagem de não lidas para recibos presentes na janela de mensagens carregada na lista.
-- Notificações do navegador somente após ação explícita do usuário para conceder permissão.
+- Notificações do navegador somente após ação explícita do usuário para conceder permissão; o conteúdo da mensagem não é incluído na notificação do sistema.
 - Painel administrativo com navegação para Funcionários, Auditoria, Registros e Configurações; auditoria com filtros por período, usuário e ação e paginação de 25 eventos.
 
 ## Segurança e banco
@@ -34,10 +34,10 @@ Nenhum bucket de anexos foi criado nesta etapa. Anexos permanecem indisponíveis
 
 ## Arquivos
 
-- `app/app/conversas/page.tsx`: diretório, lista, pesquisa e criação de conversas.
+- `app/app/conversas/page.tsx`: diretório, lista, criação de conversas e pesquisa categorizada de funcionários, grupos e mensagens com destaque.
 - `app/app/conversas/actions.ts`: ações de servidor com validação da sessão.
 - `app/app/conversas/[id]/page.tsx`: detalhes, participantes e histórico.
-- `app/app/conversas/[id]/chat-thread.tsx`: assinatura Realtime, envio e recibos.
+- `app/app/conversas/[id]/chat-thread.tsx`: assinatura Realtime, envio, recibos, notificações genéricas e paginação do histórico.
 - `app/app/admin/auditoria/page.tsx`: filtros por data, usuário e evento, com paginação.
 - `app/app/admin/registros/page.tsx`: últimos eventos da aplicação e acesso ao painel de logs técnicos da Vercel.
 - `app/app/admin/configuracoes/page.tsx`: visão somente leitura de configuração, sem revelar segredos.
@@ -57,11 +57,20 @@ O script `etapa_4_chat_checks.sql` foi executado no Supabase de desenvolvimento:
 
 **Resultado:** PASSOU. O teste foi executado em transação e terminou com `ROLLBACK`; as três contas fictícias e todas as mensagens/conversas de teste foram removidas pela reversão.
 
+## Atualização 26/11/2026
+
+- A branch foi reconciliada com a versão mais recente da Etapa 3 por commit de merge; login, primeiro acesso e recuperação self-service foram preservados.
+- Login e home consultam `app_metadata` retornada pelo `auth.getUser()` e não exigem a chave Admin para o acesso comum ao Preview.
+- O histórico agora oferece botão para carregar 50 mensagens anteriores com cursor composto por data e UUID; a posição de rolagem é preservada.
+- A pesquisa foi ampliada para funcionários, grupos e mensagens, respeitando RLS, e destaca as ocorrências do termo.
+- Notificações do sistema exibem texto genérico e não expõem o conteúdo privado da mensagem.
+
 ## Limitações e aceite pendente
 
-- O build e a tipagem do Preview precisam concluir após esta branch.
-- Teste visual e Realtime com duas sessões de navegador independentes ainda precisa ser realizado; o ambiente não tem uma segunda caixa de e-mail acessível para um funcionário real. O teste SQL simula três identidades no banco, mas não substitui a validação de WebSocket entre dois navegadores.
-- Busca, paginação para histórico anterior e notificações devem passar por regressão com dados de teste.
+- Build/Preview do commit mais recente precisa concluir com READY.
+- Teste visual e WebSocket com duas sessões de navegador independentes ainda precisa ser realizado. O teste SQL simula três identidades no banco, mas não substitui a validação de WebSocket entre dois navegadores.
+- Pesquisa ainda usa envio explícito do formulário; debounce e paginação dos resultados de busca permanecem pendentes.
+- Contagem de não lidas na lista ainda é limitada ao conjunto de mensagens carregado na consulta atual; otimização por conversa é necessária para volumes maiores.
 - O status de não lidas na lista é limitado às mensagens carregadas na consulta atual; otimização de resumo por conversa deve ser feita antes de grandes volumes.
 - Anexos, download e scanner antimalware ficam fora desta etapa e continuam bloqueados.
 - Não marcar Issues #21–30 como concluídas até validação funcional completa.
