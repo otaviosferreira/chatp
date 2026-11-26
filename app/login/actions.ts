@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export type LoginState = { error?: string };
 
@@ -23,6 +24,16 @@ export async function signIn(_previous: LoginState, formData: FormData): Promise
     return { error: "Acesso não autorizado. Se sua conta deveria estar ativa, contate a TI." };
   }
 
-  if (data.user.app_metadata?.force_password_change === true) redirect("/auth/definir-senha?mode=first");
+  // Consult the authoritative Auth record. The session/JWT may still contain stale metadata.
+  const admin = createAdminClient();
+  const { data: authRecord, error: authRecordError } = await admin.auth.admin.getUserById(data.user.id);
+  if (authRecordError || !authRecord.user) {
+    await supabase.auth.signOut();
+    return { error: "Não foi possível validar a etapa de primeiro acesso. Procure a equipe de TI." };
+  }
+
+  if (authRecord.user.app_metadata?.force_password_change === true) {
+    redirect("/auth/definir-senha?mode=first");
+  }
   redirect("/app");
 }
