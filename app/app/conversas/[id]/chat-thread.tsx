@@ -41,6 +41,8 @@ export function ChatThread({
   const [loadingOlder, setLoadingOlder] = useState(false);
   const [notificationState, setNotificationState] = useState("Notificações desativadas");
   const listEnd = useRef<HTMLDivElement>(null);
+  const preserveScrollAfterPrepend = useRef(false);
+  const [historyError, setHistoryError] = useState("");
 
   useEffect(() => {
     const channel = supabase
@@ -92,6 +94,10 @@ export function ChatThread({
   }, [conversationId, currentUserId, supabase]);
 
   useEffect(() => {
+    if (preserveScrollAfterPrepend.current) {
+      preserveScrollAfterPrepend.current = false;
+      return;
+    }
     listEnd.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, [messages.length]);
 
@@ -111,6 +117,7 @@ export function ChatThread({
       if (error) throw error;
 
       const olderRows = rows ?? [];
+      setHistoryError("");
       const senderIds = [...new Set(olderRows.map((row) => row.sender_id))];
       const { data: senders } = senderIds.length
         ? await supabase.from("profiles").select("id,full_name").in("id", senderIds)
@@ -121,13 +128,14 @@ export function ChatThread({
         sender_name: names.get(row.sender_id) || "Funcionário",
       }));
 
+      preserveScrollAfterPrepend.current = true;
       setMessages((current) => {
         const existing = new Set(current.map((message) => message.id));
         return [...olderMessages.filter((message) => !existing.has(message.id)), ...current];
       });
       setHasMore(olderRows.length === 50);
     } catch {
-      setNotificationState("Não foi possível carregar mensagens anteriores.");
+      setHistoryError("Não foi possível carregar mensagens anteriores. Tente novamente.");
     } finally {
       setLoadingOlder(false);
     }
@@ -150,6 +158,7 @@ export function ChatThread({
       </div>
 
       <div className="message-list" aria-live="polite" aria-relevant="additions">
+        {historyError && <p className="notice" role="alert">{historyError}</p>}
         {hasMore && (
           <button className="secondary-action" type="button" onClick={loadOlderMessages} disabled={loadingOlder}>
             {loadingOlder ? "Carregando..." : "Carregar mensagens anteriores"}
