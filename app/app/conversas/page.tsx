@@ -118,7 +118,7 @@ export default async function ConversationsPage({ searchParams }: { searchParams
     return new Date(bDate).getTime() - new Date(aDate).getTime();
   });
 
-  const safeSearchTerm = query.replace(/[^a-zA-Z0-9À-ÿ@.\\-\\s]/g, " ").trim();
+  const safeSearchTerm = query.replace(/[^a-zA-Z0-9À-ÿ@.\s-]/g, " ").trim();
   const [{ data: searchResults, error: searchError }, { data: searchEmployees }, { data: searchGroups }] = query.length >= 2
     ? await Promise.all([
         supabase.from("messages")
@@ -140,7 +140,7 @@ export default async function ConversationsPage({ searchParams }: { searchParams
           .order("created_at", { ascending: false })
           .limit(20),
       ])
-    : [{ data: [], error: null }, { data: [], error: null }, { data: [], error: null }];
+    : [{ data: [], error: null }, { data: [] }, { data: [] }];
 
   const titleById = new Map(conversationCards.map((item) => [item.id, item.displayTitle]));
 
