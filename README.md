@@ -25,3 +25,9 @@ A implementação inicial de autenticação está na branch `feat/etapa-2-autent
 - Rotas protegidas e bloqueio de perfis não ativos.
 - Sem auto-cadastro na interface.
 - Signup global do Supabase ainda precisa ser desabilitado no painel; ver documentação da etapa.
+
+## Etapa 3 — Administração
+
+A branch `feat/etapa-3-administracao` adiciona painel administrativo de funcionários, convites por e-mail, primeiro acesso com definição de senha, edição de perfil, gestão de papel/status e trilha de auditoria. Consulte [a documentação da Etapa 3](docs/ETAPA-2-AUTENTICACAO.md#etapa-3--administração-de-funcionários-e-provisionamento).
+
+Para habilitar o backend administrativo, configure `SUPABASE_SECRET_KEY` como variável **secreta somente no servidor** da Vercel; nunca use `NEXT_PUBLIC_` para essa chave. O domínio padrão permitido é `ulife.com.br` e pode ser ajustado por `CORPORATE_EMAIL_DOMAIN`.

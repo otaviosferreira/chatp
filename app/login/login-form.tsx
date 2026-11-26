@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import Link from "next/link";
 import { signIn, type LoginState } from "./actions";
 
 const initialState: LoginState = {};
@@ -20,9 +21,9 @@ export function LoginForm() {
       </div>
       {state.error ? <p className="notice" role="alert">{state.error}</p> : null}
       <button className="primary-button" type="submit" disabled={pending}>
-        {pending ? "Validando acesso..." : "Entrar no ChatApp"}
+        {pending ? "Validando acesso..." : "Entrar no ChatP"}
       </button>
-      <p className="security-note">
+      <p className="security-note"><Link href="/login/recuperar-senha">Esqueci minha senha</Link><br />
         O acesso é exclusivo para funcionários previamente cadastrados pela equipe de TI.
         Não existe cadastro público.
       </p>

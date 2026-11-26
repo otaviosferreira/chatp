@@ -1,6 +1,6 @@
 # Etapa 2 — Autenticação e controle de acesso
 
-**Projeto:** ChatApp — Comunicação Corporativa Privada da Calunga  
+**Projeto:** ChatP — Comunicação Corporativa Privada da Calunga  
 **Repositório:** https://github.com/otaviosferreira/chatp  
 **Branch:** feat/etapa-2-autenticacao  
 **Supabase:** xspfkbqfjgklqplkevfx
@@ -45,14 +45,14 @@ A criação de contas continua reservada ao fluxo administrativo da TI, previsto
 ## Limites e testes ainda necessários
 
 - Foi criada uma conta corporativa de teste autorizada e vinculada a um perfil ativo em `public.profiles`; a conta está confirmada no Supabase Auth. As credenciais não são registradas na documentação.
-- O teste ponta a ponta de login, sessão, renovação e logout ainda precisa ser executado pelo usuário no navegador; a senha não é acessível à equipe de validação.
+- O usuário confirmou login válido no Preview em 24/11/2026. Senha inválida, renovação de sessão e logout permanecem como regressão manual; a senha do usuário não é acessível à equipe de validação.
 - O primeiro CI do PR (#71, execução 7) falhou na instalação: `@supabase/ssr@0.12.7` exige `@supabase/supabase-js@^2.114.0`, mas o projeto estava fixado em `2.89.0`. A dependência foi atualizada para `2.114.0`.
 - O Next.js foi atualizado de `16.0.3` para `16.4.5`, junto com `eslint-config-next@16.4.5`, para incorporar as correções de segurança da linha 16.4.
 - O CI do GitHub no commit `dc7366d` concluiu com sucesso nas execuções push #12 e PR #13: instalação, TypeScript, ESLint e build de produção aprovados.
 - O projeto Vercel `chatp` foi confirmado como conectado ao repositório `otaviosferreira/chatp`. As variáveis `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` foram cadastradas para Preview, Production e Development. Nenhum segredo `service_role` foi configurado no frontend.
 - A configuração Vercel foi corrigida para framework Next.js, Node 22.x, diretório de saída automático, comando de build `npm run lint && npm run build` e proteção SSO desativada para permitir abrir a tela pública de login sem conta Vercel. A autenticação da aplicação continua obrigatória para `/app`.
-- A implantação Preview da branch foi solicitada e aguarda a conclusão do build para disponibilizar a URL final.
-- O fluxo de recuperação de senha, MFA e gerenciamento de contas fica fora do escopo desta etapa.
+- A implantação Preview da Etapa 2 atingiu `READY`; o usuário confirmou que conseguiu entrar com a conta de teste.
+- Recuperação de senha: incluída na Etapa 3 por geração administrativa de link individual (`generateLink` tipo `recovery`), sem envio automático de e-mail; a TI encaminha o link por canal corporativo autorizado. MFA permanece fora do escopo da demo.
 - A proteção contra senhas vazadas continua como pendência previamente registrada; não declarar resolvida.
 
 ## Critérios para aprovação
@@ -63,7 +63,7 @@ A criação de contas continua reservada ao fluxo administrativo da TI, previsto
 4. Validar login válido, senha inválida, usuário sem perfil, perfil desabilitado, renovação de sessão, rota protegida e logout.
 5. Executar typecheck, lint e build.
 
-A Etapa 3 não deve começar até a aprovação explícita desta entrega.
+A Etapa 3 foi autorizada pelo responsável após confirmação de login válido na implantação Preview em 24/11/2026. Os testes de senha inválida, renovação e logout permanecem como regressão a executar.
 
 ## Registro de validações realizadas em 24/11/2026
 
@@ -72,12 +72,51 @@ A Etapa 3 não deve começar até a aprovação explícita desta entrega.
 - Banco: 7/7 tabelas públicas com RLS habilitado; 11 políticas RLS; zero concessões de tabela para `anon`.
 - Banco: a conta de teste autorizada está presente em `auth.users`, com e-mail confirmado, e possui perfil `active` com papel `employee` em `public.profiles`.
 - Privilégios: `authenticated` não possui `DELETE` nem `UPDATE` em `public.profiles`.
-- Supabase Security Advisor: sem alertas retornados nesta consulta.
+- Supabase Security Advisor: o aviso `auth_leaked_password_protection` permanece pendente no plano Free.
 - Supabase Performance Advisor: apenas alertas informativos de índices ainda não utilizados, esperado em banco sem carga de uso.
 - GitHub: PR em rascunho #71 aberto para revisão; não mesclado. As execuções push #12 e PR #13 passaram em instalação, TypeScript, ESLint e build.
 - Dependências: `@supabase/supabase-js` atualizado para `2.114.0`; Next.js e `eslint-config-next` atualizados para `16.4.5`.
-- Vercel: projeto `chatp` vinculado ao repositório correto; variáveis públicas do Supabase cadastradas nos ambientes Preview, Production e Development; framework e saída Next.js corrigidos; proteção SSO removida para acesso à tela de login sem conta Vercel. Preview solicitado, aguardando status `READY`.
+- Vercel: projeto `chatp` vinculado ao repositório correto; variáveis públicas do Supabase cadastradas nos ambientes Preview, Production e Development; framework e saída Next.js corrigidos; proteção SSO removida para acesso à tela de login sem conta Vercel. Preview da Etapa 2 em `READY`.
 
 ### Resultado
 
-Os controles estruturais do banco e a configuração visual de signup foram verificados. A conta de teste autorizada está criada e ativa. A incompatibilidade de dependências foi corrigida e o CI passou em instalação, TypeScript, ESLint e build. A implantação Preview ainda precisa atingir `READY`. O teste funcional de login, sessão, renovação e logout precisa ser realizado no navegador com a senha definida pelo usuário. O alerta `auth_leaked_password_protection` permanece pendente no plano Free e não deve ser declarado resolvido.
+Os controles estruturais do banco e a configuração visual de signup foram verificados. A conta de teste está ativa e o usuário confirmou login válido no Preview. A incompatibilidade de dependências foi corrigida e o CI passou em instalação, TypeScript, ESLint e build. Senha inválida, renovação e logout seguem como regressão manual. O alerta `auth_leaked_password_protection` permanece pendente no plano Free e não deve ser declarado resolvido.
+
+
+## Etapa 3 — Administração de funcionários e provisionamento
+
+**Branch:** `feat/etapa-3-administracao`  
+**PR:** https://github.com/otaviosferreira/chatp/pull/72
+
+### Entregas na branch
+- Painel de funcionários protegido no servidor por sessão válida, perfil ativo e papel `it_admin`.
+- Cadastro administrativo via Supabase Auth Admin API (`generateLink`, tipo `invite`), validação de domínio corporativo (`CORPORATE_EMAIL_DOMAIN`, padrão `ulife.com.br`) e criação/atualização do perfil pelo UUID Auth.
+- Para a DEMO, o cadastro define a senha temporária `123456`, confirma o e-mail e marca `app_metadata.force_password_change=true`; o login e a página inicial consultam o registro Auth autoritativo e obrigam a criação de senha pessoal. Esse mecanismo é inseguro para produção e deve ser substituído antes do uso real.
+- Callback `/auth/confirm` compatível com PKCE (`code` + `exchangeCodeForSession`) e OTP `token_hash`.
+- Primeiro acesso com senha temporária e recuperação permitem definir senha pessoal de pelo menos 12 caracteres; a flag de primeiro acesso é limpa e a sessão é atualizada.
+- Recuperação self-service em `/login/recuperar-senha`, usando `resetPasswordForEmail`; a resposta é genérica para evitar enumeração de contas.
+- A geração administrativa de link de recuperação permanece disponível como procedimento assistido/fallback.
+- Edição de nome/departamento, papel `employee/it_admin` e status `active/disabled`.
+- Proteção contra auto-rebaixamento, auto-desativação e remoção do último administrador ativo, com trigger PostgreSQL e advisory lock.
+- Registro server-side de operações administrativas em `audit_logs`; tabela protegida por RLS e append-only.
+- Tela `/app/admin/auditoria` com filtros combináveis por período, UUID do responsável e ação/evento, paginação de 20 itens, ordenação por data e horário exibido em America/Sao_Paulo.
+- Tela `/app/admin/configuracoes` com diagnóstico somente leitura de domínio e configuração do ambiente; nenhum valor secreto é exibido.
+- Navegação administrativa entre Funcionários, Auditoria e Configurações.
+
+### Configuração e segurança
+- `SUPABASE_SECRET_KEY` deve permanecer somente como variável secreta server-side no Preview da branch administrativa. Nunca usar prefixo `NEXT_PUBLIC_`, nunca registrar no GitHub e nunca compartilhar o valor.
+- A chave é consumida exclusivamente por `lib/supabase/admin.ts`, módulo marcado com `server-only`.
+- A URL de retorno em Preview usa o host do deployment atual; a URL estável de Production só é escolhida em deployment Production. Isso evita que links gerados no Preview apontem para produção.
+- O callback do Preview precisa estar permitido em Supabase Auth → URL Configuration → Redirect URLs.
+- O envio automático da recuperação depende de entrega de e-mail do Supabase Auth. O SMTP corporativo ainda não foi validado/configurado nesta etapa; sem ele, a interface pode aceitar a solicitação mas o usuário não receberá a mensagem.
+- A migration `20261124205000_etapa_3_proteger_ultimo_admin.sql` já foi aplicada e testada anteriormente; não reaplicar manualmente sem verificar o histórico.
+- O alerta `auth_leaked_password_protection` permanece pendente no plano Free.
+
+### Preview e validação
+- Preview anterior da etapa: https://chatp-git-feat-etapa-3-adm-c0bf1e-otavioferreira-5984s-projects.vercel.app
+- Preview específico do último deployment READY: https://chatp-lago1rmmf-otavioferreira-5984s-projects.vercel.app
+- Build da Vercel no commit `e6e9b15`: `npm run lint && npm run build` concluído com sucesso, incluindo ESLint, compilação Next.js e TypeScript.
+- Acesso às rotas administrativas ainda requer login com conta ativa `it_admin`.
+- Testes de navegador pendentes: convite fictício e callback em dispositivo externo; recuperação com entrega real de e-mail; edição de funcionário; mudança de papel; ativação/desativação e efeito em sessão já aberta; filtros combinados, paginação, timezone; acesso negado para não-admin; imutabilidade da auditoria.
+- Não existe uma fonte independente de logs de runtime nesta tela; a rota de auditoria consulta apenas os eventos persistidos em `audit_logs`. Logs operacionais da Vercel devem ser consultados no painel Vercel.
+- PR #72 continua Draft e não foi mesclada. Nenhuma alteração foi publicada em Production.
