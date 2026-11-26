@@ -61,6 +61,7 @@ export default async function ConversationDetailPage({
     .select("id,conversation_id,sender_id,body,created_at")
     .eq("conversation_id", id)
     .order("created_at", { ascending: false })
+    .order("id", { ascending: false })
     .limit(50);
   const orderedMessages = (messageRows ?? []).reverse();
   const senderIds = [...new Set(orderedMessages.map((message) => message.sender_id))];
@@ -109,6 +110,7 @@ export default async function ConversationDetailPage({
             currentUserId={user.id}
             initialMessages={initialMessages}
             initialReceipts={initialReceipts ?? []}
+            hasMoreInitialMessages={(messageRows ?? []).length === 50}
             sendMessage={sendMessage}
           />
           <aside className="admin-card chat-members-card">
