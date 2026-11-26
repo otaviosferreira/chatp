@@ -135,3 +135,33 @@ button, input { font: inherit; }
   .admin-header-subtitle { margin-left: 0; }
   .app-header { flex-wrap: wrap; }
 }
+
+
+.admin-nav { display: flex; flex-wrap: wrap; gap: 8px; }
+.admin-nav a { padding: 9px 12px; border: 1px solid #ffffff70; border-radius: 8px; color: white; text-decoration: none; font-size: .88rem; }
+.admin-nav a[aria-current="page"], .admin-nav a:hover { background: #ffffff20; }
+.audit-filters { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); align-items: end; gap: 14px; margin-top: 18px; }
+.audit-filters label { display: grid; gap: 7px; color: #334155; font-size: .82rem; font-weight: 700; }
+.audit-filters input { width: 100%; min-height: 42px; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 8px; background: white; color: var(--ink); }
+.audit-filters .primary-button { min-height: 42px; margin: 0; }
+.audit-table-wrap { overflow-x: auto; margin-top: 18px; }
+.audit-table { width: 100%; border-collapse: collapse; font-size: .84rem; text-align: left; }
+.audit-table th, .audit-table td { padding: 12px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.audit-table th { color: var(--navy); background: #f8fafc; white-space: nowrap; }
+.audit-table td small { display: block; margin-top: 4px; color: var(--muted); overflow-wrap: anywhere; }
+.audit-table code { color: #174f86; overflow-wrap: anywhere; }
+.audit-table pre { max-width: 320px; max-height: 120px; overflow: auto; margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; color: #475569; font-size: .75rem; }
+.audit-pagination { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 18px; }
+.audit-pagination > div { display: flex; gap: 8px; }
+.audit-pagination .secondary-action { display: inline-flex; align-items: center; text-decoration: none; }
+.settings-list { display: grid; gap: 0; margin: 14px 0 0; }
+.settings-list > div { display: flex; justify-content: space-between; gap: 18px; padding: 13px 0; border-top: 1px solid var(--line); }
+.settings-list dt { color: #475569; font-weight: 700; }
+.settings-list dd { margin: 0; text-align: right; overflow-wrap: anywhere; }
+@media (max-width: 980px) { .audit-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 600px) {
+  .admin-nav { width: 100%; }
+  .audit-filters { grid-template-columns: 1fr; }
+  .audit-pagination, .settings-list > div { align-items: flex-start; flex-direction: column; }
+  .settings-list dd { text-align: left; }
+}
