@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 
 export async function requestPasswordRecovery(formData: FormData) {
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
-  if (!email || email.length > 254 || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)) {
+  if (!email || email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     redirect("/login/recuperar-senha?error=email");
   }
 
