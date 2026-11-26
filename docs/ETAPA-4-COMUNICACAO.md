@@ -67,7 +67,7 @@ O script `etapa_4_chat_checks.sql` foi executado no Supabase de desenvolvimento:
 
 ## Limitações e aceite pendente
 
-- Build/Preview do commit mais recente precisa concluir com READY.
+- Build Vercel do commit `0a578a1` concluiu com READY; Preview: https://chatp-nd641f3yi-otavioferreira-5984s-projects.vercel.app.
 - Teste visual e WebSocket com duas sessões de navegador independentes ainda precisa ser realizado. O teste SQL simula três identidades no banco, mas não substitui a validação de WebSocket entre dois navegadores.
 - Pesquisa ainda usa envio explícito do formulário; debounce e paginação dos resultados de busca permanecem pendentes.
 - Contagem de não lidas na lista ainda é limitada ao conjunto de mensagens carregado na consulta atual; otimização por conversa é necessária para volumes maiores.
