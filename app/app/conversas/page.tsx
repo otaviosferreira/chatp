@@ -15,12 +15,7 @@ const errorMessages: Record<string, string> = {
 
 function highlightMatch(value: string, term: string) {
   if (!term) return value;
-  const escaped = term.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\const errorMessages: Record<string, string> = {
-  destinatario: "Selecione um funcionário para iniciar a conversa.",
-  conversa: "Não foi possível iniciar a conversa. Confira se o funcionário está ativo.",
-  grupo: "Informe um nome e selecione pelo menos um participante ativo.",
-};
-");
+  const escaped = term.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\\\$&");
   const parts = value.split(new RegExp(`(${escaped})`, "ig"));
   return parts.map((part, index) =>
     part.toLocaleLowerCase() === term.toLocaleLowerCase()
