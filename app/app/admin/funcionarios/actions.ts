@@ -37,11 +37,13 @@ function validEmail(email: string) {
 }
 
 function getPublicSiteUrl() {
-  // Prefer the stable production domain on every Vercel deployment.
-  // VERCEL_URL is only the current deployment's temporary hostname.
+  // Preview links must return to the same Preview deployment.
+  // Use the stable project domain only for an actual Production deployment.
   const productionHost = process.env.VERCEL_PROJECT_PRODUCTION_URL?.trim();
   const deploymentHost = process.env.VERCEL_URL?.trim();
-  const host = productionHost || deploymentHost;
+  const host = process.env.VERCEL_ENV === "production"
+    ? productionHost || deploymentHost
+    : deploymentHost;
 
   if (host) {
     try {
