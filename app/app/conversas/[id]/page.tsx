@@ -99,7 +99,7 @@ export default async function ConversationDetailPage({
         <div className="chat-detail-heading">
           <div><span className="auth-eyebrow">{conversation.kind === "group" ? "Grupo" : "Mensagem direta"}</span><h1>{title}</h1>
             <p className="muted">{(members ?? []).length} participante(s)</p></div>
-          <form action={leaveConversation}><input type="hidden" name="conversation_id" value={id} /><button className="secondary-action" type="submit">Sair da conversa</button></form>
+          <form action={leaveConversation}><input type="hidden" name="conversation_id" value={id} /><button className="secondary-action" type="submit">Voltar às conversas</button></form>
         </div>
         {query.error && <p className="notice" role="alert">{query.error === "mensagem" ? "A mensagem não foi enviada. Confira o conteúdo e tente novamente." : "Não foi possível atualizar os participantes."}</p>}
 
