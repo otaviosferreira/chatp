@@ -27,7 +27,7 @@ As PRs permanecem abertas e sem merge. Nenhuma publicação em Production foi fe
 
 ## Evidências recentes de segurança
 
-- Migration 20261127110000_etapa_5_hardening_rls_grupos.sql aplicada ao Supabase chatapp-dev.
+- Migration 20261127060858_etapa_5_hardening_rls_grupos.sql aplicada ao Supabase chatapp-dev.
 - supabase/tests/etapa_5_security_regression.sql: PASSOU com identidades fictícias e ROLLBACK.
 - RLS habilitado em todas as tabelas públicas verificadas; anon sem privilégios diretos nas tabelas; escritas diretas de authenticated bloqueadas nas tabelas protegidas.
 - Oito RPCs públicas revisadas: anon sem EXECUTE; authenticated somente nas operações necessárias; SECURITY DEFINER com search_path = ''.
