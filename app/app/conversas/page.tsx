@@ -196,7 +196,7 @@ export default async function ConversationsPage({ searchParams }: { searchParams
         <div className="wa-new-conversation-heading">
           <a className="wa-modal-back" href="#nova-conversa" aria-label="Voltar">‹</a>
           <h2>Adicionar pessoas ao grupo</h2>
-          <a className="wa-modal-close" href="/app/conversas" aria-label="Fechar">×</a>
+          <Link className="wa-modal-close" href="/app/conversas" aria-label="Fechar">×</Link>
         </div>
         <NewGroupForm employees={employees ?? []} />
       </aside>
