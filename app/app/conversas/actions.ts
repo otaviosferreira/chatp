@@ -92,11 +92,31 @@ export async function removeGroupMember(formData: FormData) {
 }
 
 export async function leaveConversation(formData: FormData) {
-  await requireActiveEmployee();
+  const { supabase } = await requireActiveEmployee();
   const conversationId = String(formData.get("conversation_id") ?? "").trim();
   if (!conversationId) redirect("/app/conversas");
-  // "Sair" apenas fecha a visualização. A associação do usuário não é encerrada,
-  // preservando a conversa e todo o histórico na caixa de entrada.
+
+  const { error } = await supabase.rpc("leave_conversation", {
+    p_conversation_id: conversationId,
+  });
+  if (error) redirect(`/app/conversas/${conversationId}?error=sair`);
+
   revalidatePath("/app/conversas");
+  revalidatePath(`/app/conversas/${conversationId}`);
+  redirect("/app/conversas");
+}
+
+export async function deleteGroupConversation(formData: FormData) {
+  const { supabase } = await requireActiveEmployee();
+  const conversationId = String(formData.get("conversation_id") ?? "").trim();
+  if (!conversationId) redirect("/app/conversas");
+
+  const { error } = await supabase.rpc("delete_group_conversation", {
+    p_conversation_id: conversationId,
+  });
+  if (error) redirect(`/app/conversas/${conversationId}?error=excluir`);
+
+  revalidatePath("/app/conversas");
+  revalidatePath(`/app/conversas/${conversationId}`);
   redirect("/app/conversas");
 }
