@@ -79,7 +79,7 @@ export function ConversationInbox({ conversations, isAdmin, query = "" }: { conv
             <summary aria-label="Mais opções">⋮</summary>
             <div className="wa-menu-popover">
               <a href="#acessibilidade">Acessibilidade</a>
-              {isAdmin && <Link href="/app/admin/funcionarios">Painel de TI</Link>}
+              {isAdmin && <Link href="/app/admin">Painel de TI</Link>}
             </div>
           </details>
           <a className="wa-create-group-button" href="#novo-grupo">Criar grupo</a>
