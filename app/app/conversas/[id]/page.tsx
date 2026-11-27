@@ -1,6 +1,8 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { addGroupMember, leaveConversation, removeGroupMember, sendMessage } from "../actions";
+import { addGroupMember, deleteGroupConversation, leaveConversation, removeGroupMember, sendMessage } from "../actions";
+import { GroupActions } from "./group-actions";
+import Link from "next/link";
 import { ChatThread } from "./chat-thread";
 
 export const dynamic = "force-dynamic";
@@ -97,9 +99,18 @@ export default async function ConversationDetailPage({
         <div className="chat-detail-heading">
           <div><span className="auth-eyebrow">{conversation.kind === "group" ? "Grupo" : "Mensagem direta"}</span><h1>{title}</h1>
             <p className="muted">{(members ?? []).length} participante(s)</p></div>
-          <form action={leaveConversation}><input type="hidden" name="conversation_id" value={id} /><button className="secondary-action" type="submit">Voltar às conversas</button></form>
+          {conversation.kind === "group" ? (
+            <GroupActions
+              conversationId={id}
+              isOwner={conversation.created_by === user.id}
+              leaveAction={leaveConversation}
+              deleteAction={deleteGroupConversation}
+            />
+          ) : (
+            <Link className="secondary-action" href="/app/conversas">Voltar às conversas</Link>
+          )}
         </div>
-        {query.error && <p className="notice" role="alert">{query.error === "mensagem" ? "A mensagem não foi enviada. Confira o conteúdo e tente novamente." : "Não foi possível atualizar os participantes."}</p>}
+        {query.error && <p className="notice" role="alert">{query.error === "mensagem" ? "A mensagem não foi enviada. Confira o conteúdo e tente novamente." : query.error === "sair" ? "Não foi possível sair do grupo. Atualize a página e tente novamente." : query.error === "excluir" ? "Não foi possível excluir o grupo. Apenas o criador pode fazer isso." : "Não foi possível atualizar os participantes."}</p>}
 
         <div className="chat-detail-grid">
           <ChatThread
