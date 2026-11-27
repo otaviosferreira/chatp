@@ -78,6 +78,7 @@ export function ConversationInbox({ conversations, isAdmin, query = "" }: { conv
           <details className="wa-menu">
             <summary aria-label="Mais opções">⋮</summary>
             <div className="wa-menu-popover">
+              <a href="#acessibilidade">Acessibilidade</a>
               {isAdmin && <Link href="/app/admin/funcionarios">Painel de TI</Link>}
             </div>
           </details>
