@@ -130,14 +130,13 @@ export default async function ConversationsPage({ searchParams }: { searchParams
       <header className="app-header wa-app-header">
         <div className="brand-mark"><span className="brand-symbol" aria-hidden="true">C</span> CALUNGA · ChatP</div>
         <div className="wa-account-actions">
-          {profile.role === "it_admin" && <Link className="secondary-link" href="/app/admin/funcionarios">Painel de TI</Link>}
           <form action={signOut}><button className="secondary-button" type="submit">Sair</button></form>
         </div>
       </header>
 
       <div className="wa-layout">
         <div>
-          <ConversationInbox conversations={conversationCards} />
+          <ConversationInbox conversations={conversationCards} isAdmin={profile.role === "it_admin"} />
           {query.length >= 2 && (
             <section className="wa-search-results">
               <h2>Resultados para “{query}”</h2>
