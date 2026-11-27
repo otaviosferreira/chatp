@@ -33,7 +33,7 @@ function getServerFavoritesSnapshot() {
   return "[]";
 }
 
-export function ConversationInbox({ conversations }: { conversations: Conversation[] }) {
+export function ConversationInbox({ conversations, isAdmin }: { conversations: Conversation[]; isAdmin: boolean }) {
   const [filter, setFilter] = useState<"all" | "unread" | "favorites">("all");
   const favoritesRaw = useSyncExternalStore(subscribeFavorites, getFavoritesSnapshot, getServerFavoritesSnapshot);
   const favorites = useMemo(() => {
@@ -78,7 +78,7 @@ export function ConversationInbox({ conversations }: { conversations: Conversati
           <details className="wa-menu">
             <summary aria-label="Mais opções">⋮</summary>
             <div className="wa-menu-popover">
-              <Link href="/app/admin/funcionarios">Painel de TI</Link>
+              {isAdmin && <Link href="/app/admin/funcionarios">Painel de TI</Link>}
               <Link href="/app/conversas#nova-conversa">Novo grupo</Link>
             </div>
           </details>
