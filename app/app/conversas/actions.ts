@@ -92,7 +92,7 @@ export async function removeGroupMember(formData: FormData) {
 }
 
 export async function leaveConversation(formData: FormData) {
-  const { supabase } = await requireActiveEmployee();
+  await requireActiveEmployee();
   const conversationId = String(formData.get("conversation_id") ?? "").trim();
   if (!conversationId) redirect("/app/conversas");
   // "Sair" apenas fecha a visualização. A associação do usuário não é encerrada,
