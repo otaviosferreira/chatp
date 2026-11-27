@@ -13,7 +13,7 @@
 | 2 — Autenticação | Implementada; regressão parcial | Login confirmado pelo responsável. Recuperação e convites ponta a ponta ainda dependem de SMTP/Microsoft 365; faltam logout, sessão expirada e primeiro acesso independente. |
 | 3 — Administração | Implementada; testes manuais reportados pelo responsável | Cadastro fictício/primeiro acesso, edição, permissões, desativação, filtros/paginação e bloqueio de não-admin foram testados pelo responsável no navegador. Regressão independente pendente. |
 | 4 — Comunicação | Implementação em validação | Conversas diretas/grupos, mensagens persistidas, Realtime, recibos, busca e histórico paginado. Testes SQL passaram; Realtime em dois navegadores e regressão visual pendentes. |
-| 5 — SQA e segurança | **Parcialmente validada** | Migration de hardening aplicada; leitura de mensagens/anexos restrita a participantes; limite de grupo 50 reforçado; regressão SQL passou com rollback. Faltam CI, navegador, acessibilidade, carga e revisão independente. |
+| 5 — SQA e segurança | **Parcialmente validada** | Migration de hardening aplicada; leitura de mensagens/anexos restrita a participantes; limite de grupo 50 reforçado; regressão SQL passou com rollback. CI (npm audit, TypeScript, ESLint e build) passou no commit 99764b3. Faltam navegador, acessibilidade, carga e revisão independente. |
 | 6 — Integração e entrega | Pendente | Revisão final, CI, documentação, aceite e release ainda não concluídos. |
 
 ## Pull requests
@@ -33,6 +33,8 @@ As PRs permanecem abertas e sem merge. Nenhuma publicação em Production foi fe
 - Oito RPCs públicas revisadas: anon sem EXECUTE; authenticated somente nas operações necessárias; SECURITY DEFINER com search_path = ''.
 - Políticas de mensagens/anexos não concedem mais leitura transversal ao perfil de TI.
 - O teste verificou isolamento, recibos, grupos, limite de 50, autorização de proprietário, saída, arquivamento, último administrador, auditoria append-only e ausência de dados fictícios residuais.
+- CI do commit 99764b3: PASSOU (npm audit, TypeScript, ESLint e build de produção): https://github.com/otaviosferreira/chatp/actions/runs/45950483534.
+- Preview READY do commit 99764b3: https://chatp-11zqjmrow-otavioferreira-5984s-projects.vercel.app.
 
 ## Alertas e pendências
 
