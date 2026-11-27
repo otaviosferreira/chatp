@@ -6,6 +6,7 @@ import { signOut } from "../actions";
 import { startDirectConversation } from "./actions";
 import { ConversationInbox } from "./conversation-inbox";
 import { NewGroupForm } from "./new-group-form";
+import { AccessibilityPanel } from "./accessibility-panel";
 
 export const dynamic = "force-dynamic";
 
@@ -184,7 +185,7 @@ export default async function ConversationsPage({ searchParams }: { searchParams
         <aside className="wa-new-conversation" id="nova-conversa" aria-label="Iniciar nova conversa">
           <div className="wa-new-conversation-heading"><h2>Nova conversa</h2><Link className="wa-modal-close" href="/app/conversas" aria-label="Fechar">×</Link></div>
           <p>Encontre um funcionário ou crie um grupo.</p>
-          <Link className="wa-new-group-entry" href="#novo-grupo"><span className="wa-new-group-icon" aria-hidden="true">👥</span><span><strong>Novo grupo</strong><small>Escolha as pessoas que participarão</small></span><span aria-hidden="true">›</span></Link>
+          <a className="wa-new-group-entry" href="#novo-grupo"><span className="wa-new-group-icon" aria-hidden="true">👥</span><span><strong>Novo grupo</strong><small>Escolha as pessoas que participarão</small></span><span aria-hidden="true">›</span></a>
           <h3>Funcionários</h3>
           <div className="employee-chat-list">
             {(employees ?? []).map((employee) => (
@@ -201,12 +202,13 @@ export default async function ConversationsPage({ searchParams }: { searchParams
       </div>
       <aside className="wa-new-group" id="novo-grupo" aria-label="Adicionar pessoas ao grupo">
         <div className="wa-new-conversation-heading">
-          <Link className="wa-modal-back" href="#nova-conversa" aria-label="Voltar">‹</Link>
+          <a className="wa-modal-back" href="#nova-conversa" aria-label="Voltar">‹</a>
           <h2>Adicionar pessoas ao grupo</h2>
           <Link className="wa-modal-close" href="/app/conversas" aria-label="Fechar">×</Link>
         </div>
         <NewGroupForm employees={employees ?? []} />
       </aside>
+      <AccessibilityPanel />
       {params.error && <p className="notice wa-error" role="alert">{errorMessages[params.error] || "Não foi possível concluir a operação."}</p>}
     </main>
   );
