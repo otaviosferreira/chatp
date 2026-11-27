@@ -86,11 +86,11 @@ begin
 end
 $sqa$;
 reset role;
-update public.profiles set status='disabled' where id='00000000-0000-4000-8000-000000000051';
+update public.profiles set status='disabled' where role='it_admin' and status='active' and id <> '00000000-0000-4000-8000-000000000051';
 do $integrity$
 declare audit_id bigint;
 begin
- begin update public.profiles set status='disabled' where id='ceaed021-6134-4bfb-8f1f-204649d867ca'; raise exception 'FAIL: last active admin disabled'; exception when check_violation then null; end;
+ begin update public.profiles set status='disabled' where id='00000000-0000-4000-8000-000000000051'; raise exception 'FAIL: last active admin disabled'; exception when check_violation then null; end;
  insert into public.audit_logs(actor_id,action,target_type,target_id,reason,metadata)
  values('00000000-0000-4000-8000-000000000051','sqa_test','security_regression','stage5','rollback-only','{}'::jsonb) returning id into audit_id;
  begin update public.audit_logs set reason=reason where id=audit_id; raise exception 'FAIL: audit update allowed'; exception when sqlstate '55000' then null; end;
