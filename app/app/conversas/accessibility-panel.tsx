@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 
 export function AccessibilityPanel() {
   const [fontScale, setFontScale] = useState(1);
@@ -29,7 +28,7 @@ export function AccessibilityPanel() {
     <aside className="wa-accessibility-panel" id="acessibilidade" aria-labelledby="wa-accessibility-title">
       <div className="wa-new-conversation-heading">
         <h2 id="wa-accessibility-title">Acessibilidade</h2>
-        <Link className="wa-modal-close" href="/app/conversas" aria-label="Fechar configurações de acessibilidade">×</Link>
+        <a className="wa-modal-close" href="#fechar-paineis" aria-label="Fechar configurações de acessibilidade">×</a>
       </div>
       <p className="wa-accessibility-description">Ajuste a visualização do ChatP para facilitar a leitura e a navegação.</p>
       <section className="wa-accessibility-option" aria-label="Tamanho do texto">
