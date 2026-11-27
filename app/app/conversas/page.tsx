@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { signOut } from "../actions";
-import { createGroupConversation, startDirectConversation } from "./actions";
+import { startDirectConversation } from "./actions";
 import { ConversationInbox } from "./conversation-inbox";
 import { NewGroupForm } from "./new-group-form";
 
