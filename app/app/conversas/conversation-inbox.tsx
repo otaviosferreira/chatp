@@ -79,7 +79,6 @@ export function ConversationInbox({ conversations, isAdmin }: { conversations: C
             <summary aria-label="Mais opções">⋮</summary>
             <div className="wa-menu-popover">
               {isAdmin && <Link href="/app/admin/funcionarios">Painel de TI</Link>}
-              <Link href="/app/conversas#nova-conversa">Novo grupo</Link>
             </div>
           </details>
           <a className="wa-new-chat" href="#nova-conversa" aria-label="Iniciar nova conversa" title="Nova conversa">+</a>
