@@ -8,7 +8,7 @@
 
 ## Correções aplicadas
 
-- Migration 20261127110000_etapa_5_hardening_rls_grupos.sql aplicada no Supabase de desenvolvimento e adicionada à branch.
+- Migration 20261127060858_etapa_5_hardening_rls_grupos.sql aplicada no Supabase de desenvolvimento e adicionada à branch.
 - Políticas de leitura de messages e attachments agora exigem participação ativa na conversa. O perfil de TI mantém acesso às áreas administrativas e aos eventos de auditoria permitidos, mas não recebe acesso transversal ao conteúdo das mensagens ou aos metadados dos anexos.
 - RPC add_conversation_member agora bloqueia o 51º participante e usa bloqueio da linha da conversa (FOR UPDATE) para serializar inclusões concorrentes.
 - Grants da RPC de inclusão foram reafirmados: sem execução por PUBLIC/anon, execução apenas por authenticated.
