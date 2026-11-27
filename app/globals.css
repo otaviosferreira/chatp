@@ -522,3 +522,15 @@ html.a11y-reduce-motion *, html.a11y-reduce-motion *::before, html.a11y-reduce-m
 @media (max-width: 620px) {
   .chat-heading-actions { justify-content: flex-start; width: 100%; }
 }
+
+
+.admin-dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; margin: 20px 0; }
+.admin-metric-card { display: grid; gap: 9px; margin: 0; color: inherit; text-decoration: none; transition: border-color .15s ease, transform .15s ease; }
+.admin-metric-card:hover { border-color: #8ba9c7; transform: translateY(-2px); }
+.admin-metric-card strong { color: var(--navy); font-size: 2rem; line-height: 1.1; }
+.admin-metric-card small { color: var(--muted); font-size: .8rem; }
+.admin-quick-links { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 16px; }
+.admin-quick-links .admin-entry-link { display: grid; gap: 6px; margin: 0; }
+.admin-quick-links .admin-entry-link span { color: var(--muted); font-size: .82rem; font-weight: 400; line-height: 1.45; }
+.admin-section-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+@media (max-width: 600px) { .admin-quick-links { grid-template-columns: 1fr; } }
