@@ -8,7 +8,7 @@ export async function setInitialPassword(formData: FormData) {
   const password = String(formData.get("password") ?? "");
   const confirmation = String(formData.get("confirmation") ?? "");
 
-  if (password.length < 12 || password.length > 72 || password !== confirmation) {
+  if (password.length < 8 || password.length > 72 || password !== confirmation) {
     redirect("/auth/definir-senha?error=senha");
   }
 

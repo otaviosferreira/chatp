@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { clearRecoveryLink, generatePasswordRecoveryLink, inviteEmployee, updateEmployee } from "./actions";
 import { InviteLinkActions } from "./invite-link-actions";
+import { AdminNavigation } from "../admin-navigation";
 
 export const dynamic = "force-dynamic";
 type SearchParams = Promise<{ success?: string; error?: string }>;
@@ -51,6 +52,7 @@ export default async function EmployeesAdminPage({ searchParams }: { searchParam
         </nav>
       </header>
       <section className="admin-main">
+        <AdminNavigation active="funcionarios" />
         <div className="admin-heading">
           <div><span className="auth-eyebrow">Painel de TI</span><h1>Funcionários e acessos</h1><p className="muted">Cadastre funcionários, atualize permissões e bloqueie acessos sem apagar o histórico.</p></div>
           <span className="admin-count">{employees?.length ?? 0} cadastros</span>
