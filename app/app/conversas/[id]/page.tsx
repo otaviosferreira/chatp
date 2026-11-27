@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { addGroupMember, leaveConversation, removeGroupMember, sendMessage } from "../actions";
