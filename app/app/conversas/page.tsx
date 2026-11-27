@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { signOut } from "../actions";
 import { createGroupConversation, startDirectConversation } from "./actions";
 import { ConversationInbox } from "./conversation-inbox";
+import { NewGroupForm } from "./new-group-form";
 
 export const dynamic = "force-dynamic";
 
@@ -113,7 +114,7 @@ export default async function ConversationsPage({ searchParams }: { searchParams
   const [{ data: searchResults, error: searchError }, { data: searchEmployees }, { data: searchGroups }] = query.length >= 2
     ? await Promise.all([
         supabase.from("messages").select("id,conversation_id,sender_id,body,created_at")
-          .textSearch("body", query, { config: "portuguese", type: "websearch" }).order("created_at", { ascending: false }).limit(30),
+          .ilike("body", `%${safeSearchTerm}%`).order("created_at", { ascending: false }).limit(30),
         supabase.from("profiles").select("id,full_name,email,department")
           .eq("status", "active").neq("id", user.id)
           .or(`full_name.ilike.%${safeSearchTerm}%,email.ilike.%${safeSearchTerm}%,department.ilike.%${safeSearchTerm}%`)
@@ -136,7 +137,7 @@ export default async function ConversationsPage({ searchParams }: { searchParams
 
       <div className="wa-layout">
         <div>
-          <ConversationInbox conversations={conversationCards} isAdmin={profile.role === "it_admin"} />
+          <ConversationInbox conversations={conversationCards} isAdmin={profile.role === "it_admin"} query={query} />
           {query.length >= 2 && (
             <section className="wa-search-results">
               <h2>Resultados para “{query}”</h2>
@@ -175,6 +176,7 @@ export default async function ConversationsPage({ searchParams }: { searchParams
         <aside className="wa-new-conversation" id="nova-conversa" aria-label="Iniciar nova conversa">
           <div className="wa-new-conversation-heading"><h2>Nova conversa</h2><Link className="wa-modal-close" href="/app/conversas" aria-label="Fechar">×</Link></div>
           <p>Encontre um funcionário ou crie um grupo.</p>
+          <Link className="wa-new-group-entry" href="#novo-grupo"><span className="wa-new-group-icon" aria-hidden="true">👥</span><span><strong>Novo grupo</strong><small>Escolha as pessoas que participarão</small></span><span aria-hidden="true">›</span></Link>
           <h3>Funcionários</h3>
           <div className="employee-chat-list">
             {(employees ?? []).map((employee) => (
@@ -186,18 +188,17 @@ export default async function ConversationsPage({ searchParams }: { searchParams
             ))}
             {(!employees || employees.length === 0) && <p className="muted">Não há outros funcionários ativos.</p>}
           </div>
-          <h3>Criar grupo</h3>
-          <form action={createGroupConversation} className="group-create-form">
-            <label>Nome do grupo<input name="title" required minLength={1} maxLength={120} placeholder="Ex.: Equipe de projetos" /></label>
-            <label>Participantes
-              <select name="member_ids" multiple required size={6}>
-                {(employees ?? []).map((employee) => <option value={employee.id} key={employee.id}>{employee.full_name}</option>)}
-              </select>
-            </label>
-            <button className="primary-button" type="submit" disabled={!employees?.length}>Criar grupo</button>
-          </form>
+
         </aside>
       </div>
+      <aside className="wa-new-group" id="novo-grupo" aria-label="Adicionar pessoas ao grupo">
+        <div className="wa-new-conversation-heading">
+          <Link className="wa-modal-back" href="#nova-conversa" aria-label="Voltar">‹</Link>
+          <h2>Adicionar pessoas ao grupo</h2>
+          <Link className="wa-modal-close" href="/app/conversas" aria-label="Fechar">×</Link>
+        </div>
+        <NewGroupForm employees={employees ?? []} />
+      </aside>
       {params.error && <p className="notice wa-error" role="alert">{errorMessages[params.error] || "Não foi possível concluir a operação."}</p>}
     </main>
   );
