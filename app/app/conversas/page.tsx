@@ -129,7 +129,7 @@ export default async function ConversationsPage({ searchParams }: { searchParams
   const titleById = new Map(conversationCards.map((item) => [item.id, item.displayTitle]));
 
   return (
-    <main className="app-shell chat-app-shell">
+    <main id="fechar-paineis" className="app-shell chat-app-shell">
       <header className="app-header wa-app-header">
         <div className="brand-mark"><span className="brand-symbol" aria-hidden="true">C</span> CALUNGA · ChatP</div>
         <div className="wa-account-actions">
@@ -186,7 +186,7 @@ export default async function ConversationsPage({ searchParams }: { searchParams
         <aside className="wa-new-conversation" id="nova-conversa" aria-label="Iniciar nova conversa">
           <div className="wa-new-conversation-heading">
             <h2>Nova conversa</h2>
-            <Link className="wa-modal-close" href="/app/conversas" aria-label="Fechar">×</Link>
+            <a className="wa-modal-close" href="#fechar-paineis" aria-label="Fechar">×</a>
           </div>
           <p>Selecione um funcionário para iniciar uma conversa individual.</p>
           <NewConversationForm employees={employees ?? []} />
@@ -196,7 +196,7 @@ export default async function ConversationsPage({ searchParams }: { searchParams
         <div className="wa-new-conversation-heading">
           <a className="wa-modal-back" href="#nova-conversa" aria-label="Voltar">‹</a>
           <h2>Adicionar pessoas ao grupo</h2>
-          <Link className="wa-modal-close" href="/app/conversas" aria-label="Fechar">×</Link>
+          <a className="wa-modal-close" href="#fechar-paineis" aria-label="Fechar">×</a>
         </div>
         <NewGroupForm employees={employees ?? []} />
       </aside>
