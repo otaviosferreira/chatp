@@ -94,9 +94,9 @@ export async function removeGroupMember(formData: FormData) {
 export async function leaveConversation(formData: FormData) {
   const { supabase } = await requireActiveEmployee();
   const conversationId = String(formData.get("conversation_id") ?? "").trim();
-  const { error } = await supabase.rpc("leave_conversation", {
-    p_conversation_id: conversationId,
-  });
-  if (error) redirect(`/app/conversas/${conversationId}?error=sair`);
+  if (!conversationId) redirect("/app/conversas");
+  // "Sair" apenas fecha a visualização. A associação do usuário não é encerrada,
+  // preservando a conversa e todo o histórico na caixa de entrada.
+  revalidatePath("/app/conversas");
   redirect("/app/conversas");
 }
