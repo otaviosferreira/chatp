@@ -90,7 +90,7 @@ export default async function ConversationDetailPage({
       <header className="app-header">
         <div>
           <div className="brand-mark"><span className="brand-symbol" aria-hidden="true">C</span> CALUNGA · ChatP</div>
-          <p className="admin-header-subtitle">{conversation.kind === "group" ? "Conversa em grupo" : "Conversa individual"}</p>
+          <p className="admin-header-subtitle">{conversation.kind === "group" ? "Conversa em grupo" : title}</p>
         </div>
         <Link className="secondary-link" href="/app/conversas">Todas as conversas</Link>
       </header>
