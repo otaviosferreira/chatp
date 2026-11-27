@@ -33,7 +33,7 @@ function getServerFavoritesSnapshot() {
   return "[]";
 }
 
-export function ConversationInbox({ conversations, isAdmin }: { conversations: Conversation[]; isAdmin: boolean }) {
+export function ConversationInbox({ conversations, isAdmin, query = "" }: { conversations: Conversation[]; isAdmin: boolean; query?: string }) {
   const [filter, setFilter] = useState<"all" | "unread" | "favorites">("all");
   const favoritesRaw = useSyncExternalStore(subscribeFavorites, getFavoritesSnapshot, getServerFavoritesSnapshot);
   const favorites = useMemo(() => {
@@ -87,7 +87,8 @@ export function ConversationInbox({ conversations, isAdmin }: { conversations: C
 
       <form action="/app/conversas" method="get" className="wa-search">
         <span aria-hidden="true">⌕</span>
-        <input name="q" type="search" placeholder="Pesquisar ou começar uma nova conversa" aria-label="Pesquisar conversas e mensagens" />
+        <input name="q" type="search" defaultValue={query} minLength={2} maxLength={120} placeholder="Pesquisar conversas, pessoas e mensagens" aria-label="Pesquisar conversas, pessoas e mensagens" />
+        <button type="submit" aria-label="Pesquisar">⌕</button>
       </form>
 
       <nav className="wa-filters" aria-label="Filtrar conversas">
