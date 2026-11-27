@@ -37,6 +37,7 @@
 - Validar filtros e paginação da auditoria no navegador.
 - Executar testes de carga e observar latência/consultas com volume representativo.
 - Executar revisão independente das exceções de segurança e teste de intrusão antes de produção.
-- Acompanhar CI (npm audit, TypeScript, ESLint e build) após o commit desta atualização.
+- CI do commit 99764b3: **PASSOU** — npm audit (high), TypeScript, ESLint e build de produção. Evidência: https://github.com/otaviosferreira/chatp/actions/runs/45950483534.
+- Preview Vercel do commit 99764b3: **READY** — https://chatp-11zqjmrow-otavioferreira-5984s-projects.vercel.app.
 
 **Status da Etapa 5:** parcialmente validada. Os controles de banco e a regressão SQL passaram; a etapa não pode ser encerrada enquanto os testes de navegador, acessibilidade, carga, CI e revisão independente estiverem pendentes.
