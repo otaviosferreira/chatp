@@ -172,8 +172,8 @@ export default async function ConversationsPage({ searchParams }: { searchParams
           )}
         </div>
 
-        <aside className="wa-new-conversation" id="nova-conversa">
-          <h2>Nova conversa</h2>
+        <aside className="wa-new-conversation" id="nova-conversa" aria-label="Iniciar nova conversa">
+          <div className="wa-new-conversation-heading"><h2>Nova conversa</h2><Link className="wa-modal-close" href="/app/conversas" aria-label="Fechar">×</Link></div>
           <p>Encontre um funcionário ou crie um grupo.</p>
           <h3>Funcionários</h3>
           <div className="employee-chat-list">
