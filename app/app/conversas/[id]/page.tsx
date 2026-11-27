@@ -99,16 +99,17 @@ export default async function ConversationDetailPage({
         <div className="chat-detail-heading">
           <div><span className="auth-eyebrow">{conversation.kind === "group" ? "Grupo" : "Mensagem direta"}</span><h1>{title}</h1>
             <p className="muted">{(members ?? []).length} participante(s)</p></div>
-          {conversation.kind === "group" ? (
-            <GroupActions
-              conversationId={id}
-              isOwner={conversation.created_by === user.id}
-              leaveAction={leaveConversation}
-              deleteAction={deleteGroupConversation}
-            />
-          ) : (
-            <Link className="secondary-action" href="/app/conversas">Voltar às conversas</Link>
-          )}
+          <div className="chat-heading-actions">
+            <Link className="secondary-action chat-back-button" href="/app/conversas">← Voltar às conversas</Link>
+            {conversation.kind === "group" && (
+              <GroupActions
+                conversationId={id}
+                isOwner={conversation.created_by === user.id}
+                leaveAction={leaveConversation}
+                deleteAction={deleteGroupConversation}
+              />
+            )}
+          </div>
         </div>
         {query.error && <p className="notice" role="alert">{query.error === "mensagem" ? "A mensagem não foi enviada. Confira o conteúdo e tente novamente." : query.error === "sair" ? "Não foi possível sair do grupo. Atualize a página e tente novamente." : query.error === "excluir" ? "Não foi possível excluir o grupo. Apenas o criador pode fazer isso." : "Não foi possível atualizar os participantes."}</p>}
 
