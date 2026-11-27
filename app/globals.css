@@ -320,3 +320,77 @@ button, input { font: inherit; }
   .wa-new-conversation { margin: 12px; border: 1px solid #26343b; border-radius: 12px; }
   .wa-conversation-row { min-height: 74px; }
 }
+
+/* Padronização visual das áreas autenticadas: cabeçalho, superfícies e formulários */
+.app-shell:not(.auth-shell) { min-height: 100vh; background: #0b141a; color: #e9edef; }
+.app-shell:not(.auth-shell) > .app-header {
+  min-height: 58px; padding: 10px clamp(16px, 4vw, 34px);
+  background: #111b21; border-bottom: 1px solid #26343b; color: #e9edef;
+}
+.app-shell:not(.auth-shell) > .app-header .brand-mark { color: #e9edef; font-size: .95rem; }
+.app-shell:not(.auth-shell) > .app-header .brand-symbol { width: 34px; height: 34px; border-radius: 50%; border-color: #3b4a54; }
+.app-shell:not(.auth-shell) .admin-header-subtitle { color: #8696a0; }
+.app-shell:not(.auth-shell) .admin-main,
+.app-shell:not(.auth-shell) .chat-detail,
+.app-shell:not(.auth-shell) .app-main {
+  width: min(100% - 40px, 1280px); margin: 28px auto 56px;
+}
+.app-shell:not(.auth-shell) .admin-heading h1,
+.app-shell:not(.auth-shell) .chat-detail-heading h1,
+.app-shell:not(.auth-shell) .admin-card h2,
+.app-shell:not(.auth-shell) .admin-heading h2 { color: #e9edef; }
+.app-shell:not(.auth-shell) .auth-eyebrow { color: #00a884; }
+.app-shell:not(.auth-shell) .muted,
+.app-shell:not(.auth-shell) .admin-footnote { color: #aebac1; }
+.app-shell:not(.auth-shell) .admin-card,
+.app-shell:not(.auth-shell) .welcome-card,
+.app-shell:not(.auth-shell) .chat-thread,
+.app-shell:not(.auth-shell) .chat-members-card {
+  border-color: #26343b; border-radius: 12px; background: #111b21; color: #e9edef;
+}
+.app-shell:not(.auth-shell) .admin-card { box-shadow: none; }
+.app-shell:not(.auth-shell) .admin-tabs { border-color: #26343b; }
+.app-shell:not(.auth-shell) .admin-tab { color: #aebac1; }
+.app-shell:not(.auth-shell) .admin-tab:hover,
+.app-shell:not(.auth-shell) .admin-tab.active { background: #0a3b32; color: #d9fdd3; }
+.app-shell:not(.auth-shell) .admin-nav a { border-color: #3b4a54; color: #d1d7db; }
+.app-shell:not(.auth-shell) .admin-nav a[aria-current="page"],
+.app-shell:not(.auth-shell) .admin-nav a:hover { background: #202c33; }
+.app-shell:not(.auth-shell) input:not([type="checkbox"]),
+.app-shell:not(.auth-shell) select,
+.app-shell:not(.auth-shell) textarea {
+  border-color: #3b4a54; background: #202c33; color: #e9edef;
+}
+.app-shell:not(.auth-shell) input::placeholder,
+.app-shell:not(.auth-shell) textarea::placeholder { color: #8696a0; }
+.app-shell:not(.auth-shell) .admin-form label,
+.app-shell:not(.auth-shell) .audit-filters label,
+.app-shell:not(.auth-shell) .group-create-form label,
+.app-shell:not(.auth-shell) .group-member-form label { color: #d1d7db; }
+.app-shell:not(.auth-shell) .secondary-action,
+.app-shell:not(.auth-shell) .admin-entry-link,
+.app-shell:not(.auth-shell) .secondary-link,
+.app-shell:not(.auth-shell) .secondary-button {
+  border-color: #3b4a54; background: #202c33; color: #d9fdd3;
+}
+.app-shell:not(.auth-shell) .audit-table th { background: #202c33; color: #d1d7db; }
+.app-shell:not(.auth-shell) .audit-table td,
+.app-shell:not(.auth-shell) .audit-table th,
+.app-shell:not(.auth-shell) .record-row,
+.app-shell:not(.auth-shell) .settings-list > div,
+.app-shell:not(.auth-shell) .employee-row { border-color: #26343b; }
+.app-shell:not(.auth-shell) .audit-table td,
+.app-shell:not(.auth-shell) .record-row,
+.app-shell:not(.auth-shell) .settings-list dd,
+.app-shell:not(.auth-shell) .settings-list dt,
+.app-shell:not(.auth-shell) .employee-identity strong { color: #e9edef; }
+.app-shell:not(.auth-shell) .message-list { background: #0b141a; }
+.app-shell:not(.auth-shell) .message-bubble { border-color: #34434b; background: #202c33; color: #e9edef; }
+.app-shell:not(.auth-shell) .message-bubble.own-message { border-color: #005c4b; background: #0a3b32; }
+.app-shell:not(.auth-shell) .message-composer { border-color: #26343b; background: #111b21; }
+.app-shell:not(.auth-shell) .chat-thread-toolbar { border-color: #26343b; }
+@media (max-width: 600px) {
+  .app-shell:not(.auth-shell) .admin-main,
+  .app-shell:not(.auth-shell) .chat-detail,
+  .app-shell:not(.auth-shell) .app-main { width: min(100% - 24px, 1280px); margin-top: 20px; }
+}
