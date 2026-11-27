@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { addGroupMember, leaveConversation, removeGroupMember, sendMessage } from "../actions";
@@ -86,8 +85,8 @@ export default async function ConversationDetailPage({
     : { data: [] };
 
   return (
-    <main className="app-shell">
-      <header className="app-header">
+    <main className="app-shell chat-app-shell">
+      <header className="app-header wa-app-header">
         <div>
           <div className="brand-mark"><span className="brand-symbol" aria-hidden="true">C</span> CALUNGA · ChatP</div>
           <p className="admin-header-subtitle">{conversation.kind === "group" ? "Conversa em grupo" : title}</p>
