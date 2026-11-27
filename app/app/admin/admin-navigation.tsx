@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 const items = [
+  { id: "inicio", label: "Visão geral", href: "/app/admin" },
   { id: "funcionarios", label: "Funcionários", href: "/app/admin/funcionarios" },
   { id: "auditoria", label: "Auditoria", href: "/app/admin/auditoria" },
   { id: "registros", label: "Registros", href: "/app/admin/registros" },
