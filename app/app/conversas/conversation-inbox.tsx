@@ -82,6 +82,7 @@ export function ConversationInbox({ conversations, isAdmin, query = "" }: { conv
               {isAdmin && <Link href="/app/admin/funcionarios">Painel de TI</Link>}
             </div>
           </details>
+          <a className="wa-create-group-button" href="#novo-grupo">Criar grupo</a>
           <a className="wa-new-chat" href="#nova-conversa" aria-label="Iniciar nova conversa" title="Nova conversa">+</a>
         </div>
       </div>
