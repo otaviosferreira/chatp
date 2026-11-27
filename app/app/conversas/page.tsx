@@ -142,6 +142,14 @@ export default async function ConversationsPage({ searchParams }: { searchParams
             <section className="wa-search-results">
               <h2>Resultados para “{query}”</h2>
               {searchError && <p className="notice">Não foi possível pesquisar mensagens.</p>}
+              <section><h3>Conversas individuais ({conversationCards.filter((item) => item.kind !== "group" && item.displayTitle.toLocaleLowerCase().includes(query.toLocaleLowerCase())).length})</h3>
+                {conversationCards.filter((item) => item.kind !== "group" && item.displayTitle.toLocaleLowerCase().includes(query.toLocaleLowerCase())).map((conversation) => (
+                  <Link className="chat-search-result" href={`/app/conversas/${conversation.id}`} key={conversation.id}>
+                    <strong>{highlightMatch(conversation.displayTitle, query)}</strong>
+                    <small>Conversa individual</small>
+                  </Link>
+                ))}
+              </section>
               <section><h3>Funcionários ({searchEmployees?.length ?? 0})</h3>
                 {(searchEmployees ?? []).map((employee) => (
                   <form action={startDirectConversation} key={employee.id} className="employee-chat-row">
