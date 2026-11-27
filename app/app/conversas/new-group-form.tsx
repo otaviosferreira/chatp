@@ -33,12 +33,12 @@ export function NewGroupForm({ employees }: { employees: Employee[] }) {
         placeholder="Pesquisar nome, número ou @nomedeusuário"
         aria-label="Pesquisar participantes"
       />
+      {selected.map((id) => <input key={id} type="hidden" name="member_ids" value={id} />)}
       <div className="wa-group-employee-list">
         {visibleEmployees.map((employee) => (
           <label className="wa-group-employee" key={employee.id}>
             <input
               type="checkbox"
-              name="member_ids"
               value={employee.id}
               checked={selected.includes(employee.id)}
               onChange={(event) => toggleEmployee(employee.id, event.target.checked)}
