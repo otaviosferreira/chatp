@@ -30,7 +30,7 @@ export function NewGroupForm({ employees }: { employees: Employee[] }) {
         type="search"
         value={term}
         onChange={(event) => setTerm(event.target.value)}
-        placeholder="Pesquisar nome, número ou @nomedeusuário"
+        placeholder="Pesquisar nome, e-mail ou departamento"
         aria-label="Pesquisar participantes"
       />
       {selected.map((id) => <input key={id} type="hidden" name="member_ids" value={id} />)}
