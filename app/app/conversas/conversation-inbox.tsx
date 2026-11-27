@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState, useSyncExternalStore } from "react";
 
 type Conversation = {
   id: string;
@@ -13,31 +13,46 @@ type Conversation = {
   unread: number;
 };
 
+const FAVORITES_KEY = "chatp:favorite-conversations";
+const FAVORITES_EVENT = "chatp:favorite-conversations-change";
+
+function subscribeFavorites(onChange: () => void) {
+  window.addEventListener("storage", onChange);
+  window.addEventListener(FAVORITES_EVENT, onChange);
+  return () => {
+    window.removeEventListener("storage", onChange);
+    window.removeEventListener(FAVORITES_EVENT, onChange);
+  };
+}
+
+function getFavoritesSnapshot() {
+  return window.localStorage.getItem(FAVORITES_KEY) ?? "[]";
+}
+
+function getServerFavoritesSnapshot() {
+  return "[]";
+}
+
 export function ConversationInbox({ conversations }: { conversations: Conversation[] }) {
   const [filter, setFilter] = useState<"all" | "unread" | "favorites">("all");
-  const [favorites, setFavorites] = useState<string[]>([]);
-  const [ready, setReady] = useState(false);
-
-  useEffect(() => {
+  const favoritesRaw = useSyncExternalStore(subscribeFavorites, getFavoritesSnapshot, getServerFavoritesSnapshot);
+  const favorites = useMemo(() => {
     try {
-      const saved = window.localStorage.getItem("chatp:favorite-conversations");
-      if (saved) setFavorites(JSON.parse(saved) as string[]);
+      const parsed: unknown = JSON.parse(favoritesRaw);
+      return Array.isArray(parsed) ? parsed.filter((item): item is string => typeof item === "string") : [];
     } catch {
-      setFavorites([]);
+      return [];
     }
-    setReady(true);
-  }, []);
+  }, [favoritesRaw]);
 
   function toggleFavorite(id: string) {
-    setFavorites((current) => {
-      const next = current.includes(id) ? current.filter((item) => item !== id) : [...current, id];
-      try {
-        window.localStorage.setItem("chatp:favorite-conversations", JSON.stringify(next));
-      } catch {
-        // A lista continua funcional durante esta sessão se o armazenamento estiver indisponível.
-      }
-      return next;
-    });
+    const next = favorites.includes(id) ? favorites.filter((item) => item !== id) : [...favorites, id];
+    try {
+      window.localStorage.setItem(FAVORITES_KEY, JSON.stringify(next));
+      window.dispatchEvent(new Event(FAVORITES_EVENT));
+    } catch {
+      // A falha do armazenamento não deve impedir a navegação pelas conversas.
+    }
   }
 
   const visible = useMemo(() => conversations.filter((conversation) => {
@@ -86,7 +101,7 @@ export function ConversationInbox({ conversations }: { conversations: Conversati
         {visible.map((conversation) => {
           const lastActivity = conversation.lastMessage?.created_at ?? conversation.created_at;
           const preview = conversation.lastMessage?.body || "Ainda não há mensagens. Comece a conversar.";
-          const initials = conversation.displayTitle.trim().split(/\s+/).slice(0, 2).map((part) => part[0]).join("").toUpperCase();
+          const initials = conversation.displayTitle.trim().split(/\\s+/).slice(0, 2).map((part) => part[0]).join("").toUpperCase();
           const favorite = favorites.includes(conversation.id);
           return (
             <article className="wa-conversation-row" key={conversation.id}>
@@ -106,7 +121,7 @@ export function ConversationInbox({ conversations }: { conversations: Conversati
           );
         })}
         {visible.length === 0 && (
-          <p className="wa-empty">{filter === "unread" ? "Você não tem conversas não lidas." : filter === "favorites" ? (ready ? "Marque conversas com ☆ para encontrá-las aqui." : "Carregando favoritas…") : "Você ainda não participa de conversas."}</p>
+          <p className="wa-empty">{filter === "unread" ? "Você não tem conversas não lidas." : filter === "favorites" ? "Marque conversas com ☆ para encontrá-las aqui." : "Você ainda não participa de conversas."}</p>
         )}
       </div>
     </section>
